@@ -132,18 +132,21 @@ declare
   %rest:path("/stasova/reports")
   %rest:query-param("report", "{$report}", "report1")
   %rest:query-param("title", "{$title}", "Кадровый состав ПДО")
+   %rest:query-param("message", "{$message}")
   %rest:GET
   %output:method('xhtml')
-function view:reports( $report, $title )
+function view:reports( $report, $title, $message )
 {
  let $template := serialize( doc("main-tpl.html") )
   let $content :=
        <div class="row">
          <div class="col">
            <h4>{$title}</h4>
+           <p><i>{$message}</i></p>
            <form action="/stasova/api/templates" method="GET">
              <div class="input-group" >
                <input type="hidden" name="template" value="{$report}" />
+               <input type="hidden" name="title" value="{$title}" />
                <input type="submit" class="btn btn-success" value="Сохранить"/>
              </div>
            </form>
