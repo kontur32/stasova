@@ -26,10 +26,11 @@ function report:report1( $id as xs:string )
   </tr>
   {
   for $r in db:open('stasova','data')//row[@class="http://interdomivanovo.ru/schema/vospitatel"]
+  count $c
   return 
     <tr>
-      <td>{count($r/preceding-sibling::*)+1}</td>
-      <td>{$r/cell[@id ='фамилия'] || " "|| $r/cell[@id ='имя'] || " " || $r/cell[@id ='отчество']}</td>
+      <td>{$c}</td>
+      <td>{string-join($r/cell[@id = ('фамилия', 'имя', 'отчество') ]/text(), " " )}</td>
       <td>{ $r/cell[@id ='дата рождения']/text() }</td>
       <td>{ years-from-duration(st:count-age(xs:date( $r/cell[@id ='дата рождения']/text() ))) }</td>
       <td>{ $r/cell[@id ='образование']/text() || ", " || $r/cell[@id ='дата завершения образования']/text()}</td>

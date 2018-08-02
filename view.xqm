@@ -12,6 +12,7 @@ declare
   %rest:path("/stasova")
   %rest:GET
   %output:method('xhtml')
+  
 function view:main()
 {
   let $template := serialize( doc("main-tpl.html") )
@@ -59,6 +60,7 @@ declare
   %rest:query-param("message", "{$message}")
   %rest:GET
   %output:method('xhtml')
+  %perm:allow("admin")
 function view:data( $id, $recid, $message )
 {
  let $template := serialize( doc("main-tpl.html") )
