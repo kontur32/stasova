@@ -73,7 +73,7 @@ function xlsx:row-to-TRCI(
       return 
           element {QName('','cell')} 
             {
-              attribute {'id'} {$heads[count($cell/preceding-sibling::*)+1]}, 
+              attribute {'alias'} {$heads[count($cell/preceding-sibling::*)+1]}, 
               $cell/v/text()
             }
       }
@@ -84,29 +84,31 @@ declare
   %public
 function xlsx:col-to-TRCI(
   $data-sheet as document-node()
-) as element()
+) as element ()
 {  
-  let $heads := $data-sheet//row/c[1]/v/text() (: заголовки столбцов :)  
-  return 
-    element {QName('','table')}
-    {
-      for $col in 2 to count($heads )
-      return
-      if ($data-sheet//row[c[$col]/v/text()]) (: исключает пустые колонки :)
-      then ( 
-        element {QName('','row')}
+  let $rows :=  $data-sheet//row[c[1]/v[normalize-space(text())]] (: непустые строки:)  
+  let $col-numbers := 
+    max (
+      for $i in $rows
+      return count($i/c)
+    )
+  
+  return
+  element {QName ('', 'table')}
+  { 
+    for $i in 2 to $col-numbers
+    return
+      element {QName ('', 'row')}
         {
-          for $row in $data-sheet//row
-          return 
-            element {QName('','cell')}
-              {
-                attribute {'id'} {$row//c[1]/v/text()},
-                $row//c[$col]/v/text()
-              }
-         }
-       )
-       else ()
-    }
+          for $r in $rows
+          return
+            element {QName('', 'cell')}
+            {
+              attribute {'alias'} {$r/c[1]/v/text()},
+              $r/c[$i]/v/text()
+            }
+        }
+   }
 };
 
 declare 
@@ -139,4 +141,4 @@ function xlsx:binary-col-to-TRCI(
    let $data := xlsx:index-to-text($sheet_data, $strings)             
    return 
     xlsx:col-to-TRCI( $data)
-};  
+};
