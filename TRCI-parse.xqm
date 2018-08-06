@@ -1,4 +1,4 @@
-declare namespace parse = "http://www.iro37.ru/stasova/TRCI-parse";
+module namespace parse = "http://www.iro37.ru/stasova/TRCI-parse";
 
 import module  namespace xlsx = 'http://iro37.ru.ru/xq/modules/xlsx' at 'module-xlsx.xqm';
 
@@ -23,50 +23,43 @@ function parse:from-xlsx($file as xs:base64Binary)
 
 declare 
   %public
-function parse:construct-MODEL($model as element())
+function parse:construct-MODEL($model )
 {
- let $new-rows :=
- for $r in $model/row
- return
-   element {QName('', 'row')}
-     {  
-       for $c in $r/cell
-       return
-         $c update rename node ./@alias as 'id'
-     }
-  return 
-    $model 
-      update {delete node ./row}
-      update {insert node $new-rows  into .}  
+ element {QName('', 'table')}
+ {
+   $model/attribute::*,
+   for $r in $model/row
+   return
+     element {QName('', 'row')}
+       {  
+         for $c in $r/cell
+         return
+           $c update rename node ./@alias as 'id'
+       }
+  }
 };
 
 declare 
   %public
 function parse:construct-DATA($data as element(), $model as element())
 {
- let $new-rows :=
+  element {QName('', 'table')}
+   {
+     $data/attribute::*,
+     $model/@id,
+     $model/@alias,
+     $model/@xml:base,
      for $r in $data/row
      return
       element {QName('', 'row')}
         {
-         attribute {'type'} {$data/@subjectType/data()},
-         attribute {'about'}{$model/@subjectBase/data() || iri-to-uri($r/cell[@alias='id']/text())},
+         attribute {'type'} {$data/@aboutType/data()},
+         attribute {'id'}{$r/cell[@alias='id']/text()},
+         $model/@xml:base,
          for $c in $r/cell
          let $id := $model//row[cell[@id='alias']/text() = $c/@alias/data()]/cell[@id='id']/text()
          return 
            $c update insert node attribute {'id'} {$id} into .
          }
-  return 
-    $data update {delete node ./row}
-    update {insert node $new-rows into .}
- 
+    }
 };
-
-
-let $file_DATA := file:read-binary("C:\Users\Пользователь\Documents\DATA-vospitatel 2.0.xlsx")
-let $data :=  parse:from-xlsx($file_DATA)
-let $file_MODEL := file:read-binary("C:\Users\Пользователь\Documents\DM-vospitatel 2.0.xlsx")
-let $model := parse:construct-MODEL(  parse:from-xlsx($file_MODEL) )
-
-return
-  parse:construct-DATA($data, $model )
