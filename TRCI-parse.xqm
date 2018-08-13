@@ -8,7 +8,7 @@ function parse:from-xlsx($file as xs:base64Binary)
 {
   let $meta := xlsx:binary-col-to-TRCI ($file, 'xl/worksheets/sheet2.xml')
   let $fields := 
-      if ($meta//row[1]/cell[@alias="direction"]/text()='col')
+      if ($meta//row[1]/cell[@label="direction"]/text()='col')
       then ( xlsx:binary-col-to-TRCI ($file, 'xl/worksheets/sheet1.xml') )
       else ( xlsx:binary-row-to-TRCI ($file, 'xl/worksheets/sheet1.xml') )
   return
@@ -16,7 +16,7 @@ function parse:from-xlsx($file as xs:base64Binary)
       {
         for $attr in $meta//row[1]/cell
         return 
-          attribute {$attr/@alias/data()} {$attr/text()},
+          attribute {$attr/@label/data()} {$attr/text()},
               $fields/row
       }
 };
@@ -34,7 +34,7 @@ function parse:construct-MODEL($model )
        {  
          for $c in $r/cell
          return
-           $c update rename node ./@alias as 'id'
+           $c update rename node ./@label as 'id'
        }
   }
 };
@@ -45,21 +45,17 @@ function parse:construct-DATA($data as element(), $model as element())
 {
   element {QName('', 'table')}
    {
-     $data/attribute::*,
-     $model/@id,
-     $model/@alias,
-     $model/@xml:base,
-     for $r in $data/row
+     $data/attribute::*,   
+     for $row in $data/row
      return
       element {QName('', 'row')}
         {
-         attribute {'type'} {$data/@aboutType/data()},
-         attribute {'id'}{$r/cell[@alias='id']/text()},
-         $model/@xml:base,
-         for $c in $r/cell
-         let $id := $model//row[cell[@id='alias']/text() = $c/@alias/data()]/cell[@id='id']/text()
+         attribute {'type'} {$model/@xml:base || "/schema/" || $data/@aboutType/data()},
+         attribute {'id'}{$model/@xml:base || "/resource/"|| $data/@aboutType/data() || "/" || $row/cell[@label='id']/text()},
+         for $cell in $row/cell
+         let $id := $model//row[cell[@id='label']/text()= $cell/@label/data()]/cell[@id='id']/text()
          return 
-           $c update insert node attribute {'id'} {$id} into .
+           $cell update insert node attribute id {$id} into .
          }
     }
 };

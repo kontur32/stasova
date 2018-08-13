@@ -69,11 +69,11 @@ function xlsx:row-to-TRCI(
   return
     element {QName('','row')}
       { 
-      for $cell in $row/c
+      for $cell in $row/c[v/text()]
       return 
           element {QName('','cell')} 
             {
-              attribute {'alias'} {$heads[count($cell/preceding-sibling::*)+1]}, 
+              attribute {'label'} {$heads[count($cell/preceding-sibling::*)+1]}, 
               $cell/v/text()
             }
       }
@@ -104,7 +104,7 @@ function xlsx:col-to-TRCI(
           return
             element {QName('', 'cell')}
             {
-              attribute {'alias'} {$r/c[1]/v/text()},
+              attribute {'label'} {$r/c[1]/v/text()},
               $r/c[$i]/v/text()
             }
         }
