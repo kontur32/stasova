@@ -1,9 +1,9 @@
-module namespace apiout = "http://www.iro37.ru/stasova/api/output";
+module namespace apiget = "http://www.iro37.ru/stasova/api/output";
 
 declare
   %rest:path("/{$root}/ресурс")
   %rest:method('GET') 
-function apiout:recource-list ( $root )
+function apiget:recource-list ( $root )
 {
   <ресурсы>
     {
@@ -16,7 +16,7 @@ function apiout:recource-list ( $root )
 declare
   %rest:path("/{$root}/ресурс/{$type}")
   %rest:method('GET')
-function apiout:recource ( $root, $type )
+function apiget:recource ( $root, $type )
 {
   <table>
     {
@@ -27,8 +27,8 @@ function apiout:recource ( $root, $type )
 
 declare
   %rest:path("/{$root}/словарь")
-  %rest:method('GET')
-function apiout:dictionary-list ($root)
+  %rest:GET
+function apiget:dictionary-list ($root)
 {
   <словари>
     {
@@ -42,7 +42,7 @@ function apiout:dictionary-list ($root)
 declare
   %rest:path("/{$root}/словарь/{$type}")
   %rest:method('GET')
-function apiout:dictionary ($root, $type)
+function apiget:dictionary ($root, $type)
 {
    let $rows := db:open($root, 'root')/root/table[@type="Data"]/row[@type="http://interdomivanovo.ru/schema/" || $type ]
 
@@ -63,7 +63,7 @@ declare
   %rest:path("/{$root}/онтология/{$class}")
   %output:method('xhtml')
   
-function apiout:ontology ($root, $class)
+function apiget:ontology ($root, $class)
 {
   let $ontology := db:open( $root, 'root')/root/table[@type="Classes"]
   let $subclasses := $ontology/row[cell[@label="subClassOf"]/text()= $class  ]/cell[@label="id"]/text()
@@ -83,7 +83,7 @@ function apiout:ontology ($root, $class)
           <div>{
             for $i in $subclasses
             return 
-              apiout:subclasses($root, $i)}
+              apiget:subclasses($root, $i)}
           </div>
         </div>
         <p>Является подклассом: </p>
@@ -96,7 +96,7 @@ function apiout:ontology ($root, $class)
     </html> 
 };
 
-declare %private function apiout:subclasses ( $root, $class )
+declare %private function apiget:subclasses ( $root, $class )
 {
   let $ontology := db:open( $root, 'root')/root/table[@type="Classes"]
   let $subclasses := $ontology/row[cell[@label="subClassOf"]/text()= $class  ]/cell[@label="id"]/text()
@@ -112,7 +112,7 @@ declare %private function apiout:subclasses ( $root, $class )
          <a href="{$class}">{$label($class) || ":"}</a>,
          for $a in $subclasses
          return 
-         <ul>{apiout:subclasses($root, $a)}</ul>
+         <ul>{apiget:subclasses($root, $a)}</ul>
      }</li>
      )
    else ( <li><a href="{ $class}">{$label($class)}</a></li> ) 
@@ -122,7 +122,7 @@ declare
   %rest:path("/{$root}/пользователи")
   %rest:method('GET')
  
-function apiout:users-list ($root )
+function apiget:users-list ($root )
 {
   user:list()
 };

@@ -22,17 +22,18 @@ function parse:from-xlsx($file as xs:base64Binary)
 };
 
 declare 
-  %public
-function parse:construct-MODEL($model )
+  %private
+function parse:construct-MODEL($model as element(table) )
 {
  element {QName('', 'table')}
  {
    $model/attribute::*,
-   for $r in $model/row
+   for $row in $model/row
    return
      element {QName('', 'row')}
        {  
-         for $c in $r/cell
+         attribute {'id'} {$model/@xml:base || "/schema/"|| $model/@aboutType/data() || "/" || $row/cell[@label='id']/text()},
+         for $c in $row/cell
          return
            $c update rename node ./@label as 'id'
        }
@@ -40,8 +41,8 @@ function parse:construct-MODEL($model )
 };
 
 declare 
-  %public
-function parse:construct-DATA($data as element(), $model as element())
+  %private
+function parse:construct-DATA( $data as element(table), $model as element (table))
 {
   element {QName('', 'table')}
    {
@@ -58,4 +59,16 @@ function parse:construct-DATA($data as element(), $model as element())
            $cell update insert node attribute id {$id} into .
          }
     }
+};
+
+declare 
+  %public
+function parse:construct-TRCI( $dbname as xs:string, $data as element(table) )
+{
+  if ($data/@type="Model")
+  then ( parse:construct-MODEL($data) )
+  else (
+    let $model:= db:open($dbname, 'root')//table[@type='Model' and @aboutType=$data/@aboutType]
+    return parse:construct-DATA($data, $model)
+  )
 };
