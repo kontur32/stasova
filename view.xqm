@@ -105,7 +105,7 @@ function view:data( $id, $recid, $message )
                    return 
                      <tr>
                        <th>{$cell/@id/data()}</th>
-                       <td>{$cell/text()}</td>
+                       <td>{if ($cell/@id/data() = "Фото") then(<a href="{$cell/text()}">фото</a>) else ($cell/text())}</td>
                      </tr>
                  }
                </table>
@@ -148,7 +148,7 @@ function view:reports( $report, $title )
              </div>
            </form>
            <div style="overflow: scroll; " > 
-             {fetch:xml('http://localhost:8984/stasova/api/reports/' || $report)}
+             {fetch:xml('http://localhost:8984/stasova/api/reports/' || $report || "?class=" || "http://iro37.ru/schema/teacher")}
            </div>
          </div>
        </div>
@@ -157,10 +157,13 @@ function view:reports( $report, $title )
                     <h4>Список отчетов:</h4>
                     <ul>
                       <li>
-                        <a href="/stasova/reports?report=report1&amp;title=Кадровый состав ПДО" >Кадровый состав ПДО</a>
+                        <a href="/stasova/reports?report=report1&amp;title=Кадровый состав ПДО">Кадровый состав ПДО</a>
                       </li>
                       <li>
-                        <a href="/stasova/reports?report=report2&amp;title=Педагогический состав МЦО" >Педагогический состав МЦО</a>
+                        <a href="/stasova/reports?report=report2&amp;title=OO-1: Педагогический состав по возрасту" >OO-1: Педагогический состав по возрасту</a>
+                      </li>
+                      <li>
+                        <a href="/stasova/reports?report=report3&amp;title=Социальный паспорт класса" >Социальный паспорт класса</a>
                       </li>
                     </ul>
                   </div>
@@ -195,3 +198,14 @@ function view:temlates( $id, $recId, $message )
   
     return st:fill-html-template($template, map{"sidebar": $sidebar, "content":$content} )/child::*  
 }; 
+
+declare 
+  %rest:path("/stasova/img")
+  %rest:GET
+  %output:method('xhtml')
+function view:img()
+{
+  <html>
+    <img scr="http://webcesi.com/wp-content/uploads/2017/10/html-img-etiketi.jpg"/>
+  </html>
+};

@@ -57,7 +57,8 @@ function report:report1( $id as xs:string )
 declare 
   %rest:path("/stasova/api/reports/report2")
   %rest:method('GET')
-function report:report2()
+  %rest:query-param("class", "{$class}", "class")
+function report:report2( $class )
 {
   <table class="table table-striped">
     <tr>
@@ -70,14 +71,13 @@ function report:report2()
       <th>старше 71</th>
     </tr>
   {
-  let $r := db:open('stasova','data')//row[@class="http://interdomivanovo.ru/schema/vospitatel"]
+  let $r := db:open('stasova','data')//row[@class=$class]
   let $age := 
       for $i in $r
       return 
-        years-from-duration(st:count-age(xs:date( $i/cell[@id ='дата рождения']/text())))
-  return
-  <tbody> 
-    <tr>
+        years-from-duration(st:count-age(xs:date( $i/cell[@id ='Дата рождения']/text())))
+  let $age-group :=
+     <tr>
       <td>{count($age)}</td>
       <td>{count($age[ data()<=30])}</td>
       <td>{count($age[data()>=31 and data()<=40])}</td>
@@ -86,15 +86,50 @@ function report:report2()
       <td>{count($age[data()>=61 and data()<=70])}</td>
       <td>{count($age[data()>=71])}</td>
     </tr>
-     <tr>
-      <td>100</td>
-      <td>{count($age[ data()<=30]) div count($age)*100}</td>
-      <td>{count($age[data()>=31 and data()<=40]) div count($age)*100}</td>
-      <td>{count($age[data()>=41 and data()<=50]) div count($age)*100}</td>
-      <td>{count($age[data()>=51 and data()<=60]) div count($age)*100}</td>
-      <td>{count($age[data()>=61 and data()<=70]) div count($age)*100}</td>
-      <td>{count($age[data()>=71]) div count($age) *100}</td>
+  return
+  <tbody> 
+    <tr>
+      {for $i in $age-group/td
+      return 
+        $i}
+    </tr>
+    <tr>
+      {
+        for $i in $age-group/td
+        return 
+          <td>{round ($i div $age-group/td[1] * 100)}</td>
+      }
     </tr>
     </tbody>
    }</table>
+};
+
+declare 
+  %rest:path("/stasova/api/reports/report3")
+  %rest:method('GET')
+  %rest:query-param("class", "{$class}", "class")
+function report:report3( $class )
+{
+  let $a := ('Доход семьи', "Жилищные условия", 'Форма обучения', "Группа здоровья", "Характер работы матери", "Характер работы отца", "Место работы матери", "Место работы отца")
+let $ch := db:open('stasova', 'data')//table[@type="data"][4]/row
+return
+<div>
+  {
+    for $k in $a
+return 
+    <table>
+      <tr><td><b><i>{$k}: </i></b></td></tr>   
+        {
+          for $i in $ch
+          group by $b := $i/cell[@id=$k][text()]/text()
+          where $b
+          return
+            <tr> 
+              <td>{$b}</td> <td>{count($i)} {if ($k="Форма обучения" and $b="домашняя") then ( " (" || string-join(  $i/cell[@id=("Фамилия", "Имя")], " " ) || ")") else ()}</td>
+            </tr>
+        }
+     
+    </table>
+  }
+</div>
 };
