@@ -108,6 +108,7 @@ declare
   %rest:path("/stasova/api/reports/report3")
   %rest:method('GET')
   %rest:query-param("class", "{$class}", "class")
+  %output:method('html')
 function report:report3( $class )
 {
   let $a := ('Доход семьи', "Жилищные условия", 'Форма обучения', "Группа здоровья", "Характер работы матери", "Характер работы отца", "Место работы матери", "Место работы отца")
@@ -116,7 +117,9 @@ function report:report3( $class )
     for $k in $a
     return
       <tbody>
-      <tr><td><b>{$k}</b></td></tr>
+        <tr style="border-bottom: 1px solid black;">
+          <th colspan="2">{$k}</th>
+        </tr>
       {        
           for $i in $ch
           group by $b := $i/cell[@id=$k][text()]/text()
@@ -130,8 +133,8 @@ function report:report3( $class )
  return
    <table class="table table-striped">
      <tr>
-       <th>Показатель</th>
-       <th>Значение</th>
+       <th><b>Показатель</b></th>
+       <th><b>Значение</b></th>
      </tr>
      {$result}
    </table>
