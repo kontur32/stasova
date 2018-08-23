@@ -157,13 +157,13 @@ function view:reports( $report, $title )
                     <h4>Список отчетов:</h4>
                     <ul>
                       <li>
-                        <a href="/stasova/reports?report=report1&amp;title=Кадровый состав ПДО">Кадровый состав ПДО</a>
-                      </li>
-                      <li>
                         <a href="/stasova/reports?report=report2&amp;title=OO-1: Педагогический состав по возрасту" >OO-1: Педагогический состав по возрасту</a>
                       </li>
                       <li>
                         <a href="/stasova/reports?report=report3&amp;title=Социальный паспорт класса" >Социальный паспорт класса</a>
+                      </li>
+                      <li>
+                        <a href="/stasova/reports?report=report5&amp;title=Сведения о педагогах" >Сведения о педагогах</a>
                       </li>
                     </ul>
                   </div>
@@ -198,14 +198,3 @@ function view:temlates( $id, $recId, $message )
   
     return st:fill-html-template($template, map{"sidebar": $sidebar, "content":$content} )/child::*  
 }; 
-
-declare 
-  %rest:path("/stasova/img")
-  %rest:GET
-  %output:method('xhtml')
-function view:img()
-{
-  <html>
-    <img scr="http://webcesi.com/wp-content/uploads/2017/10/html-img-etiketi.jpg"/>
-  </html>
-};

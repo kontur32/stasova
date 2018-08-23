@@ -111,25 +111,69 @@ declare
 function report:report3( $class )
 {
   let $a := ('Доход семьи', "Жилищные условия", 'Форма обучения', "Группа здоровья", "Характер работы матери", "Характер работы отца", "Место работы матери", "Место работы отца")
-let $ch := db:open('stasova', 'data')//table[@type="data"][4]/row
-return
-<div>
-  {
+  let $ch := db:open('stasova', 'data')//table[@type="data" and @class="http://iro37.ru/schema/children" ]/row
+  let $result :=
     for $k in $a
-return 
-    <table>
-      <tr><td><b><i>{$k}: </i></b></td></tr>   
-        {
+    return
+      <tbody>
+      <tr><td><b>{$k}</b></td></tr>
+      {        
           for $i in $ch
           group by $b := $i/cell[@id=$k][text()]/text()
           where $b
           return
             <tr> 
-              <td>{$b}</td> <td>{count($i)} {if ($k="Форма обучения" and $b="домашняя") then ( " (" || string-join(  $i/cell[@id=("Фамилия", "Имя")], " " ) || ")") else ()}</td>
+              <td>{$b}</td> <td><a href="api/reports/report4?group={$k}&amp;value={$b}">{count($i)}</a> {if ($k="Форма обучения" and $b="домашняя") then ( " (" || string-join(  $i/cell[@id=("Фамилия", "Имя")], " " ) || ")") else ()}</td>
             </tr>
-        }
-     
-    </table>
-  }
-</div>
+     }
+     </tbody>   
+ return
+   <table class="table table-striped">
+     <tr>
+       <th>Показатель</th>
+       <th>Значение</th>
+     </tr>
+     {$result}
+   </table>
+};
+
+declare 
+  %rest:path("/stasova/api/reports/report4")
+  %rest:method('GET')
+  %rest:query-param("group", "{$group}", "group")
+  %rest:query-param("value", "{$value}", "value")
+function report:report4( $group, $value )
+{
+  <table>
+    {db:open('stasova', 'data')//table[@type="data" and @class="http://iro37.ru/schema/children" ]/row[cell[@id=$group]/text()=$value]}
+  </table>
+};
+
+declare 
+  %rest:path("/stasova/api/reports/report5")
+  %rest:method('GET')
+  %output:method('html')
+function report:report5( )
+{
+  let $data := db:open('stasova', 'data')//table[@type="data" and @class="http://iro37.ru/schema/teacher" ]/row
+let $fields := ("Фамилия", "Имя", "Отчество", "Должность", "Стаж педагогический")
+let $result := 
+  for $r in $data
+  return 
+    <tr>
+      {
+        for $c in $r/cell[@id/data() = $fields]
+        return 
+          <td>{$c/text()}</td>
+      }
+    </tr>
+    
+    return 
+      <table class="table table-striped">
+        <tr>
+          {for $c in $fields
+          return <th>{$c}</th>}
+        </tr>
+        {$result}
+      </table>
 };
