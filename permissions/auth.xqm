@@ -4,19 +4,26 @@
  declare variable $auth:domain-alias := 'ood';
  declare variable $auth:domain-path := 'domains';
  declare variable $auth:domain := db:open( 'stasova2' , $auth:domain-path )/domains/domain[@alias= $auth:domain-alias];
+ declare variable $auth:token := '';
  
- declare 
- function auth:build-session-record ( $user as xs:string, $duration as xs:dayTimeDuration )
+ declare
+ function auth:build-token ( )
  {
+    string(xs:hexBinary(hash:hash(string(random:double()) || string(current-dateTime()) , 'sha-256')))
+ };
+ 
+ declare
+ function auth:build-session-record ( $user as xs:string, $token, $duration as xs:dayTimeDuration )
+ {
+   
    element session {
      attribute { 'name' } { $user },
      attribute { 'expires' } { string(current-dateTime() + $duration ) },
-     attribute { 'token' } { string(xs:hexBinary(hash:hash(string(random:double()) || string(current-dateTime()) , 'sha-256'))) }
+     attribute { 'token' } { $token  }
    }
  };
 
 declare
-    
   function auth:build-user-record ( 
     $name as xs:string, 
     $password as xs:string, 
@@ -38,35 +45,51 @@ declare
  declare 
    %updating 
  function 
-   auth:set-session( $user as xs:string, $duration as xs:dayTimeDuration )
+   auth:set-session( $domain as xs:string, $user as xs:string, $token, $duration as xs:dayTimeDuration )
  {
    let $sessions := $auth:domain/sessions
-   let $session := auth:build-session-record ( $user, $duration )
-   where $auth:domain/users/user[@name = $user ]
+   let $session := auth:build-session-record ( $user, $token, $duration )
+   where $auth:db/domains/domain[@alias = $domain]/users/user[@name = $user ]
    return
      if ($sessions/session[@name= $user])
      then ( replace node $sessions//session[@name= $user] with $session )
      else ( insert node $session into $sessions)
+     
  };
  
  declare 
    %updating 
- function auth:set-session( $user as xs:string )
+ function auth:set-session($domain as xs:string, $user as xs:string, $token )
  {
-   auth:set-session( $user, xs:dayTimeDuration('PT60S') )
+   auth:set-session($domain, $user, $token, xs:dayTimeDuration('PT60S') )
  };
   
   declare 
-  function 
-    auth:validate-session ( $token as xs:string )
+  function  
+    auth:validate-session ( $domain, $token )
   {
-    let $session := $auth:domain/sessions/session[@token/data() = $token]
+    let $session := $auth:db/domains/domain[@alias = $domain]/sessions/session[@token/data() = $token]
     where $session
     return   
       $session/@token/data() = $token and ( xs:dateTime ($session/@expires/data() ) - current-dateTime() ) div xs:dayTimeDuration('PT1S') > 0
   };
   
-  
+  declare function 
+    auth:validate-user ( $domain as xs:string , $name as xs:string, $pass as xs:string)
+  {
+    let $user := $auth:db/domains/domain[@alias= $domain ]/users/user[@name=$name]
+    let $hash := string(hash:hash($pass, 'sha-256'))
+    return
+    if (
+      $user/password[@algorithm="sha-256"]/hash/text()= $hash 
+    )
+    then (
+      true()
+    )
+    else (
+      false()
+    )
+  };  
 
 
   declare 

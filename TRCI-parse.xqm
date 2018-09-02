@@ -21,6 +21,20 @@ function parse:from-xlsx($file as xs:base64Binary)
       }
 };
 
+
+(: ----------------------------------------------------------- :)
+declare 
+  %public
+function parse:construct-TRCI( $dbname as xs:string, $data as element(table) )
+{
+  if ($data/@type="Model")
+  then ( parse:construct-MODEL($data) )
+  else (
+    let $model:= db:open($dbname, 'root')//table[@type='Model' and @aboutType=$data/@aboutType]
+    return parse:construct-DATA($data, $model)
+  )
+};
+
 declare 
   %private
 function parse:construct-MODEL($model as element(table) )
@@ -61,14 +75,3 @@ function parse:construct-DATA( $data as element(table), $model as element (table
     }
 };
 
-declare 
-  %public
-function parse:construct-TRCI( $dbname as xs:string, $data as element(table) )
-{
-  if ($data/@type="Model")
-  then ( parse:construct-MODEL($data) )
-  else (
-    let $model:= db:open($dbname, 'root')//table[@type='Model' and @aboutType=$data/@aboutType]
-    return parse:construct-DATA($data, $model)
-  )
-};
