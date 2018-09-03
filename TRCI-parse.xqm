@@ -17,7 +17,7 @@ function parse:from-xlsx($file as xs:base64Binary)
         for $attr in $meta//row[1]/cell
         return 
           attribute {$attr/@label/data()} {$attr/text()},
-              $fields/row
+          $fields/row
       }
 };
 
@@ -74,4 +74,3 @@ function parse:construct-DATA( $data as element(table), $model as element (table
          }
     }
 };
-

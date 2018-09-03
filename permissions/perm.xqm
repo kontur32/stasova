@@ -3,10 +3,9 @@ import module namespace Session = "http://basex.org/modules/session";
 import module namespace auth = 'http://iro37.ru/xq/modules/auth' at 'auth.xqm';
 
 declare variable $pm:base := 'trac' ;
-declare variable $pm:token := '';
 
 declare
-  %rest:path("/trac")
+  %rest:path("/trac/1")
   %output:method ('xhtml')
 function pm:start(  ) {
   <html>
@@ -18,8 +17,6 @@ function pm:start(  ) {
         <li><a href="{'/' || $pm:base || '/' || $i/@alias/data()} ">{$i/@alias/data()}</a></li>
     }
     </ul>
-    <a href="{$pm:base || '/user'}">Для пользователя</a>
-    <a href="{$pm:base || '/owner'}">Для администратора</a>
   </html>
 };
 
@@ -60,7 +57,7 @@ function pm:owner(  ) {
     {
       for $i in $auth:db/domains/domain
       return
-        <li><a href="{ $pm:base || '/login/owner/' || $i/@alias/data() } ">{$i/@alias/data()}</a></li>
+        <li><a href="{ '/' || $pm:base || '/login/owner/' || $i/@alias/data() } ">{$i/@alias/data()}</a></li>
     }
     </ul>
   </html>
@@ -124,6 +121,16 @@ function pm:owner( $domain ) {
   then ( 
   <html>
     <h2>Страница владельца домена {$domain}</h2>
+     {Session:get('token'),
+      Session:get('name'),
+      Session:get('domain'),
+      auth:validate-session ( Session:get('domain'), Session:get('token') ),
+    let $session := $auth:db/domains/domain[@alias = $domain]/sessions/session[@token/data() = Session:get('token')]
+      where $session
+      return   
+         ( xs:dateTime ($session/@expires/data() ) - current-dateTime() )
+      }
+      <p><a href="{'/' || $pm:base || '/logout'}">Выйти</a></p>
   </html>
   )
   else (
@@ -142,14 +149,15 @@ declare
   %rest:query-param("scope", "{$scope}")
 function pm:login-check(  $name, $pass, $domain, $scope ) {
     
-     if( auth:validate-user ( $domain, $name, $pass ) )
+     if( auth:validate-grants ( $domain, $name, $pass, $scope ) )
     then(
       Session:set('token', auth:build-token ( ) ), 
-      auth:set-session($domain, $name, Session:get('token')),
+      auth:set-session( $domain, $name, Session:get('token') ),
       Session:set('name', $name),
       Session:set('domain', $domain),
+      Session:set('scope', $scope),
       
-      db:output( web:redirect('/trac/user/' || $domain ))
+      db:output( web:redirect('/trac/' || $scope || '/' || $domain ))
     )
     else (
       db:output( web:redirect('/trac'))
@@ -167,12 +175,42 @@ function pm:logout(  ) {
 
 (: --------- start API auth ------------------------------ :)
 
-declare %perm:check('/trac/user') function pm:check-app() {
+declare 
+  %perm:check('/trac/user')
+  %updating 
+function pm:check-user() {
   let $domain := Session:get('domain')
   let $token := Session:get('token')
-  where  not ( auth:validate-session ( $domain, $token ))
-  return
-    web:redirect('/trac')  
+  let $user := Session:get('name')
+  let $new-token := auth:build-token ( )
+  return 
+    if (  auth:validate-session ( $domain, $token ) and $auth:db/domains/domain[@alias = $domain]/users/user[@name = $user ])
+    then ( 
+      Session:set('token', $new-token ), 
+      auth:set-session($domain, $user, $new-token ) 
+    )
+    else (
+       db:output (web:redirect('/trac')  )
+    )
+};
+
+declare 
+  %perm:check('/trac/owner')
+  %updating 
+function pm:check-owner() {
+  let $domain := Session:get('domain')
+  let $token := Session:get('token')
+  let $user := Session:get('name')
+  let $new-token := auth:build-token ( )
+  return 
+    if (  auth:validate-session ( $domain, $token ) and $auth:db/domains/domain/@owner = $user)
+    then ( 
+      Session:set('token', $new-token ), 
+      auth:set-session($domain, $user, $new-token ) 
+    )
+    else (
+       db:output (web:redirect('/trac')  )
+    )
 };
 
 (: -------------------------------------------------------------------------- :)
