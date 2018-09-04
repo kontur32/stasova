@@ -1,13 +1,7 @@
- module namespace auth = 'http://iro37.ru/xq/modules/auth';
+module namespace auth = 'http://iro37.ru/xq/modules/auth';
 
 import  module namespace conf = 'http://iro37.ru/xq/modules/config' at "../config.xqm";
 
- declare variable $auth:db := db:open('stasova2');
- declare variable $auth:domain-alias := 'ood';
- declare variable $auth:domain-path := 'domains';
- declare variable $auth:domain := db:open( 'stasova2' , $auth:domain-path )/domains/domain[@alias= $auth:domain-alias];
-declare variable $auth:session-duration := xs:dayTimeDuration('PT60S');
-declare variable $auth:base := 'trac';
  
  declare
  function auth:build-token ( )
@@ -16,11 +10,12 @@ declare variable $auth:base := 'trac';
  };
  
  declare
- function auth:build-session-record ( $user as xs:string, $token, $duration as xs:dayTimeDuration )
+ function auth:build-session-record ( $user as xs:string, $scope, $token, $duration as xs:dayTimeDuration )
  {
    
    element session {
      attribute { 'name' } { $user },
+     attribute { 'scope' } { $scope },
      attribute { 'expires' } { string(current-dateTime() + $duration ) },
      attribute { 'token' } { $token  }
    }
@@ -48,12 +43,12 @@ declare
  declare 
    %updating 
  function 
-   auth:set-session( $domain as xs:string, $user as xs:string, $token, $duration as xs:dayTimeDuration )
+   auth:set-session( $domain as xs:string, $user as xs:string, $scope, $token, $duration as xs:dayTimeDuration )
  {
-   let $sessions := $auth:domain/sessions
-   let $session := auth:build-session-record ( $user, $token, $duration )
-   where $auth:db/domains/domain[@alias = $domain]/users/user[@name = $user ]
-     or $auth:db/domains/domain/@owner = $user
+   let $sessions := $conf:domain/sessions
+   let $session := auth:build-session-record ( $user, $scope , $token, $duration )
+   where $conf:db/domains/domain[@id = $domain]/users/user[@name = $user ]
+     or $conf:db/domains/domain/@owner = $user
    return
      if ($sessions/session[@name= $user])
      then ( replace node $sessions//session[@name= $user] with $session )
@@ -63,19 +58,29 @@ declare
  
  declare 
    %updating 
- function auth:set-session($domain as xs:string, $user as xs:string, $token )
+ function auth:set-session($domain as xs:string, $user as xs:string, $scope, $token )
  {
-   auth:set-session($domain, $user, $token, $auth:session-duration )
+   auth:set-session($domain, $user, $scope, $token, $conf:session-duration )
  };
   
   declare 
   function  
     auth:validate-session ( $domain, $token )
   {
-    let $session := $auth:db/domains/domain[@alias = $domain]/sessions/session[@token/data() = $token]
+    let $session := $conf:db/domains/domain[@id = $domain]/sessions/session[@token/data() = $token]
     where $session
     return   
-      $session/@token/data() = $token and ( xs:dateTime ($session/@expires/data() ) - current-dateTime() ) div xs:dayTimeDuration('PT1S') > 0
+      $session/@token/data() = $token and ( xs:dateTime ($session/@expires/data() ) - current-dateTime() ) div xs:dayTimeDuration('PT1S') > 0 
+  }; 
+  
+    declare 
+  function  
+    auth:get-session-scope ( $domain, $token )
+  {
+    let $session := $conf:db/domains/domain[@id = $domain]/sessions/session[@token/data() = $token]
+    where  auth:validate-session ( $domain, $token )
+    return   
+     $session/@scope/data() 
   }; 
   
    declare function 
@@ -93,7 +98,7 @@ declare
   declare function 
     auth:validate-user ( $domain as xs:string , $name as xs:string, $pass as xs:string)
   {
-    let $user := $auth:db/domains/domain[@alias= $domain ]/users/user[@name=$name]
+    let $user := $conf:db/domains/domain[@id= $domain ]/users/user[@name=$name]
     let $hash := string(hash:hash($pass, 'sha-256'))
     return
     if (
@@ -110,8 +115,8 @@ declare
 declare function 
     auth:validate-owner ( $domain as xs:string , $name as xs:string, $pass as xs:string)
   {
-    let $owner-name := $auth:db/domains/domain[@alias= $domain ]/@owner
-    let $owner-hash := $auth:db/domains/domain[@alias= $domain ]/@owner-hash
+    let $owner-name := $conf:db/domains/domain[@id= $domain ]/@owner
+    let $owner-hash := $conf:db/domains/domain[@id= $domain ]/@owner-hash
     let $hash := string(hash:hash($pass, 'sha-256'))
     return
     if (
@@ -134,7 +139,7 @@ declare function
       $permission as xs:string
   )
   {
-    let $users := $auth:domain/users
+    let $users := $conf:domain/users
     let $new-user := auth:build-user-record($name, $password, $permission)
         
     return 
