@@ -13,13 +13,14 @@ declare
 function view:main()
 {
   let $template := serialize( doc("src/main-tpl.html") )
+  let $nav := fetch:xml ("http://localhost:8984/trac/api/interface/main")
   let $content := doc('src/intro.html')
   let $sidebar := 
     <div >
       <img class="img-fluid"  src="http://svptraining.info/wp-content/uploads/2018/02/large-puzzle-piece-template-puzzle-piece-clip-art-free-2-image-large-puzzle-pieces-template-free.jpg"/>
     </div>
-  
-    return st:fill-html-template($template, map{"sidebar": $sidebar, "content":$content} )/child::*  
+  let $map := map{"sidebar": $sidebar, "content":$content, "nav":$nav}
+    return st:fill-html-template( $template, $map )//html 
 };
 
 declare
@@ -120,14 +121,16 @@ function view:user( $domain ) {
 
 declare
   %rest:path("/trac/owner/{$domain}")
+  %rest:query-param("section", "{$section}")
   %rest:query-param("group", "{$group}")
   %rest:query-param("item", "{$item}")
   %rest:query-param("message", "{$message}")
   %output:method ('xhtml')
-function view:owner( $domain, $group, $item, $message ) {
-  if ( $conf:db/domains/domain[@id = $domain ] )
+function view:owner( $section, $domain, $group, $item, $message ) {
+  if ( auth:get-session-scope ( $domain, Session:get('token') ) = "owner"  )
   then (
     let $groups := map{"users" : "Пользователи домена", "ontology":"Онтология домена"}
+    let $nav := fetch:xml (web:create-url( $conf:rootUrl || "/" || $conf:base || "/api/interface/owner", map{"domain":$domain}))
     let $template := serialize( doc("src/main-tpl.html") )
     let $domain := 
       if ( empty($domain) ) 
@@ -144,7 +147,7 @@ function view:owner( $domain, $group, $item, $message ) {
               {
                 let $request-url := 
                     web:create-url 
-                      ( "http://localhost:8984/trac/api/output/" || $group,
+                      ( $conf:rootUrl || "/" || $conf:base || "/api/output/" || $group,
                        map{ "domain": $domain, "token" : Session:get("token")}
                      )
                 let $items-list := 
@@ -162,9 +165,9 @@ function view:owner( $domain, $group, $item, $message ) {
             <div>
               <p><i>{$message}</i></p>
               <p>Загрузить:</p>
-              <form action=  "{ '/' || $conf:base || '/api/input/admin/users'}" method="post">
-                <input type="file" name="files"/>
-                <input type="text" name="callback" value="/trac/owner/ood" hidden="true"/>
+              <form action=  "{ '/' || $conf:base || '/api/input/admin/users'}" method="POST" enctype="multipart/form-data">
+                <input type="file" name="file" multiple="multiple"/>
+                <input type="text" name="callback" value="{ '/trac/owner/' || $domain }" hidden="true" />
                 <input type="text" name="domain" value="{$domain}" hidden="true"/>
                 <input type="text" name="token" value="{Session:get('token')}" hidden="true"/>
                 <br/>
@@ -183,8 +186,8 @@ function view:owner( $domain, $group, $item, $message ) {
             <li><a href="?group=ontology">Онтология домена</a></li>
         </ul>
       </div>
-
-      return st:fill-html-template($template, map{"sidebar": $sidebar, "content":$content} )/child::*      
+  let $map := map{"sidebar": $sidebar, "content":$content, "nav":$nav}
+  return st:fill-html-template( $template, $map )//html 
    )
    else (
      web:redirect( '/' || $conf:base )

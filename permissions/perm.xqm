@@ -72,6 +72,6 @@ function pm:check-owner() {
       auth:set-session($domain, $user, Session:get("scope"), $new-token ) 
     )
     else (
-       db:output (web:redirect('/trac')  )
+       db:output (web:redirect('/trac/domains')  )
     )
 };

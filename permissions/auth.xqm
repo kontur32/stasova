@@ -45,7 +45,7 @@ declare
  function 
    auth:set-session( $domain as xs:string, $user as xs:string, $scope, $token, $duration as xs:dayTimeDuration )
  {
-   let $sessions := $conf:domain/sessions
+   let $sessions := $conf:db//domains/domain[@id=$domain]/sessions
    let $session := auth:build-session-record ( $user, $scope , $token, $duration )
    where $conf:db/domains/domain[@id = $domain]/users/user[@name = $user ]
      or $conf:db/domains/domain/@owner = $user
@@ -128,28 +128,4 @@ declare function
     else (
       false()
     )
-  };
-
-  declare 
-    %updating
-  function 
-    auth:set-user ( 
-      $name as xs:string, 
-      $password as xs:string, 
-      $permission as xs:string
-  )
-  {
-    let $users := $conf:domain/users
-    let $new-user := auth:build-user-record($name, $password, $permission)
-        
-    return 
-      if ( $users/user[@name = $name] )
-      then 
-      (
-        replace node $users/user[@name = $name] with $new-user
-      )
-      else
-      (
-        insert node $new-user into $users
-      )
   };
