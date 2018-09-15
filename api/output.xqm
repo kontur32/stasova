@@ -12,19 +12,9 @@ function output:users ( $domain, $token )
 {
   if ( auth:get-session-scope ( $domain, $token ) = "owner")
   then (
-    <table>
-      {
-        for $i in $conf:db//domains/domain[@id=$domain]/users/user
-        return
-          <row>
-            <cell id="id">{$i/@name/data()}</cell>
-            <cell id="label">{$i/@name/data()}</cell>
-          </row>
-      }
-    </table>
+    $conf:db//domain[@id = $domain ]/users/table
   )
   else (
     <error>Ошибка авторизации</error>
   )
-  
 };

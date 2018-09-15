@@ -17,15 +17,28 @@ function output:users (  $file, $callback, $domain, $token )
 {
   if ( auth:get-session-scope ( $domain, $token ) = "owner")
   then (
-   
+    let $users-data := parse:from-xlsx( xs:base64Binary($file(map:keys($file)[1] )) )
     let $users := 
-    for $i in parse:from-xlsx( xs:base64Binary($file(map:keys($file)[1])))//row
-    return auth:build-user-record ( $i/cell[@label="id"]/text(), $i/cell[@label="password"]/text(), "user" )
-        return
-        replace node $conf:db//domain[@id=$domain]/users with <users>{$users}</users>,
-        
-    db:output( web:redirect($conf:rootUrl || $callback, map{"section":"resource", "group":"users", "message":"Данные загружены"}))
-    
+      for $i in  $users-data//row
+      return  
+        auth:build-user-record ( $i/cell[@label="id"]/text(), $i/cell[@label="label"]/text(), $i/cell[@label="password"]/text(), "user" ) 
+     let $users-info := 
+       element {'table'} {
+         $users-data/attribute::*,
+       for $r in $users-data/row
+       return
+         element {"row"}{
+           for $c in $r/cell[@label !=  "password"]
+           return
+             element {"cell"} {
+               attribute {'id'} {$c/@label},
+               $c/text()
+             }
+         } 
+       }
+    return
+      replace node $conf:db//domain[@id=$domain]/users with <users>{$users, $users-info}</users>,  
+      db:output( web:redirect($conf:rootUrl || $callback, map{"section":"resource", "group":"users", "message":"Данные загружены"})) 
   )
   else (
     db:output(web:redirect($callback, map{"message":"Ошибка авторизации"}))

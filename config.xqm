@@ -8,3 +8,7 @@ declare variable $conf:domain-path := 'domains';
 declare variable $conf:session-duration := xs:dayTimeDuration('PT600S');
 declare variable $conf:base := 'trac';
 declare variable $conf:rootUrl := "http://localhost:8984" ;
+declare variable $conf:menuUrl := 
+      function ($level) {
+        $conf:rootUrl || "/" || $conf:base || "/api/interface/menu/" || $level
+      };
