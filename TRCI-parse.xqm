@@ -14,63 +14,69 @@ function parse:from-xlsx($file as xs:base64Binary)
   return
     element {QName('', 'table') } 
       {
-        for $attr in $meta//row[1]/cell
+        for $attr in $meta/row[1]/cell
         return 
           attribute {$attr/@label/data()} {$attr/text()},
-          $fields/row
+        $fields/row
       }
-};
+}; 
 
-
-(: ----------------------------------------------------------- :)
 declare 
   %public
-function parse:construct-TRCI( $dbname as xs:string, $data as element(table) )
+function parse:model ($data as element(table))
 {
-  if ($data/@type="Model")
-  then ( parse:construct-MODEL($data) )
-  else (
-    let $model:= db:open($dbname, 'root')//table[@type='Model' and @aboutType=$data/@aboutType]
-    return parse:construct-DATA($data, $model)
-  )
-};
-
-declare 
-  %private
-function parse:construct-MODEL($model as element(table) )
-{
- element {QName('', 'table')}
- {
-   $model/attribute::*,
-   for $row in $model/row
-   return
-     element {QName('', 'row')}
-       {  
-         attribute {'id'} {$model/@xml:base || "/schema/"|| $model/@aboutType/data() || "/" || $row/cell[@label='id']/text()},
-         for $c in $row/cell
-         return
-           $c update rename node ./@label as 'id'
-       }
+  element { "table" } {
+    $data/attribute::*,
+    for $r in $data/row
+    return 
+      element {"row"} {
+        attribute {"id"} { $data/@aboutType || "/" || $r/cell[@label="id"]/text()},
+        for $c in $r/cell
+        return
+          $c 
+           update replace node ./@label with attribute {"id"} {fn:encode-for-uri ($c/@label/data() )}
+      } 
   }
 };
 
 declare 
-  %private
-function parse:construct-DATA( $data as element(table), $model as element (table))
+  %public
+function parse:data ($data as element(table), $model as element(table))
 {
-  element {QName('', 'table')}
-   {
-     $data/attribute::*,   
-     for $row in $data/row
-     return
-      element {QName('', 'row')}
-        {
-         attribute {'type'} {$model/@xml:base || "/schema/" || $data/@aboutType/data()},
-         attribute {'id'}{$model/@xml:base || "/resource/"|| $data/@aboutType/data() || "/" || $row/cell[@label='id']/text()},
-         for $cell in $row/cell
-         let $id := $model//row[cell[@id='label']/text()= $cell/@label/data()]/cell[@id='id']/text()
-         return 
-           $cell update insert node attribute id {$id} into .
-         }
-    }
+  element { "table" } {
+    $data/attribute::*,
+    for $r in $data/row
+    return 
+      element {"row"} {
+        attribute {"id"} { $data/@aboutType || "/" || $r/cell[@label="id"]/text()},
+        
+        for $c in $r/cell
+        let $modelCell := $model/row[ cell[@id="label"]/text()= $c/@label/data()]
+        let $cellId := 
+          if ($modelCell/cell[@id="id"]/text())
+          then ( $modelCell/cell[@id="id"]/text() )
+          else ( fn:encode-for-uri ($c/@label/data()) )
+        let $cellData :=
+          if ($modelCell/cell[@id="parser"])
+          then ( 
+            try {
+              fetch:text( 
+                web:create-url(
+                  "http://localhost:8984/trac/api/parser/" || $modelCell/cell[@id="parser"]/text(),
+                   map { "data" : $c/text()} )
+              )
+            }
+            catch * {
+              ""
+            }
+          )
+          else ( $c/text() )  
+        
+        return
+          element {"cell"} {
+            attribute {"id"} { $cellId },
+            $cellData
+          }            
+      } 
+  }
 };

@@ -22,7 +22,7 @@ function pm:login-check(  $user, $pass, $domain, $scope ) {
       Session:set('id', $user),
       Session:set('domain', $domain),
       Session:set('scope', $scope),
-      
+     
       db:output( web:redirect('/trac/' || $scope || '/' || $domain ))
     )
     else (
@@ -50,7 +50,7 @@ function pm:check-user() {
   let $user := Session:get('id')
   let $new-token := auth:build-token ( )
   return 
-    if (  auth:validate-session ( $domain, $token ) and $conf:db/domains/domain[@id = $domain]/users/user[@id = $user ])
+    if ( auth:validate-session ( $domain, $token ) and $conf:getUser ( $domain, $user ) )
     then ( 
       Session:set('token', $new-token ), 
       auth:set-session($domain, $user, Session:get("scope"), $new-token ) 

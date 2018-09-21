@@ -44,10 +44,12 @@ declare
  function 
    auth:set-session( $domain as xs:string, $user as xs:string, $scope, $token, $duration as xs:dayTimeDuration )
  {
-   let $sessions := $conf:db//domains/domain[@id=$domain]/sessions
-   let $session := auth:build-session-record ( $user, $scope , $token, $duration )
-   where $conf:db/domains/domain[@id = $domain]/users/user[@id = $user ]
-     or $conf:db/domains/domain/@owner = $user
+   let $sessions := $conf:domain ($domain)/sessions
+   let $session := auth:build-session-record ( $user, $scope , $token, $duration )  
+   where 
+     $conf:getUser ( $domain, $user ) or
+     $conf:domain( $domain )/@owner = $user
+   
    return
      if ($sessions/session[@userid= $user])
      then ( replace node $sessions//session[@userid= $user][last()] with $session )
@@ -96,18 +98,12 @@ declare
   declare function 
     auth:validate-user ( $domain as xs:string , $name as xs:string, $pass as xs:string)
   {
-    let $user := $conf:db/domains/domain[@id= $domain ]/users/user[@id=$name]
+    let $userHash := $conf:domain( $domain )/data/owner/table[@type="Data" and @aboutType = "users"]/row[@id = "users/" || $name ]/cell[@id="hash"]/text()
     let $hash := string(hash:hash($pass, 'sha-256'))
     return
-      if (
-        $user/password[@algorithm="sha-256"]/hash/text()= $hash 
-      )
-      then (
-        true()
-      )
-      else (
-        false()
-      )
+      if ( $userHash = $hash )
+      then ( true() )
+      else ( false() )
   };  
 
 declare function 
