@@ -29,3 +29,24 @@ function output:parser-password ( $data )
  then ( string(hash:hash( $data, 'sha-256' )) )
  else ()
 };
+
+declare
+  %rest:path("/trac/api/output/{$domain}/dictionaries/{$aboutType}")
+  %rest:method('GET')
+function output:dictionaries ( $domain, $aboutType )
+{
+  let $dic := $conf:domain ( $domain )//table[ @type="Model" and @aboutType= $aboutType ]/@label
+  return 
+    element { $dic } {
+      let $data := $conf:domain ( $domain )//table[ @type="Dictionaries" and @aboutType=$aboutType ]
+      for $r in $data/row
+      return 
+        element { $data/@label } {
+          for $c in $r/cell
+          return 
+            element {$c/@id} {
+              $c/text()
+            }
+        }    
+  }
+};

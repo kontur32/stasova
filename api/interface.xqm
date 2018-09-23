@@ -38,10 +38,5 @@ function int:nav-owner ( $domain )
       <cell id="label">Словари</cell>
       <cell id="href">owner/{$domain}/Dictionaries</cell>
     </row>
-    <row>
-      <cell id="id">orders</cell>
-      <cell id="label">Отчеты</cell>
-      <cell id="href">owner/{$domain}/Orders</cell>
-    </row>
   </table>
 };

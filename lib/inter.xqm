@@ -26,6 +26,6 @@ function inter:form-update ( $callback, $action, $token, $domain )
                   <input type="text" name="domain" value="{ $domain }" hidden="true"/>
                   <input type="text" name="token" value="{ $token }" hidden="true"/>
                   <br/>
-                  <input type="submit" value="Обновить данные"/>
+                  <input type="submit" value="Обновить/загрузить данные"/>
               </form>
 };

@@ -46,12 +46,13 @@ function parse:data ($data as element(table), $model as element(table))
   element { "table" } {
     $data/attribute::*,
     for $r in $data/row
+    let $idLabel := $model//row [@id= $model/@aboutType/data() || "/id"]/cell[@id="label"]/text()
     return 
       element {"row"} {
-        attribute {"id"} { $data/@aboutType || "/" || $r/cell[@label="id"]/text()},
-        
+        attribute {"id"} { $data/@aboutType || "/" || $r/cell[ @label= $idLabel ]/text() },
+        attribute {"type"} { $data/@aboutType },
         for $c in $r/cell
-        let $modelCell := $model/row[ cell[@id="label"]/text()= $c/@label/data()]
+        let $modelCell := $model/row[ cell[@id="label"]/text() = $c/@label/data()]
         let $cellId := 
           if ($modelCell/cell[@id="id"]/text())
           then ( $modelCell/cell[@id="id"]/text() )

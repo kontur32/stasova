@@ -98,10 +98,11 @@ declare
   declare function 
     auth:validate-user ( $domain as xs:string , $name as xs:string, $pass as xs:string)
   {
-    let $userHash := $conf:domain( $domain )/data/owner/table[@type="Data" and @aboutType = "users"]/row[@id = "users/" || $name ]/cell[@id="hash"]/text()
+    let $userHash := $conf:getUser ( $domain, $name )/cell[@id="hash"]/text()
+    let $userStatus := $conf:getUser ( $domain, $name )/cell[@id="status"]/text()
     let $hash := string(hash:hash($pass, 'sha-256'))
     return
-      if ( $userHash = $hash )
+      if ( $userHash = $hash and  $userStatus = "active")
       then ( true() )
       else ( false() )
   };  
