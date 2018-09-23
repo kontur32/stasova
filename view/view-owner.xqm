@@ -239,6 +239,11 @@ function view:owner-dic( $domain, $group,  $item, $pagination, $message ) {
       <div class="row">
         <div class="col-md-6 border-right"> 
           <h2>{ $model[ @aboutType= $group ]/@label/data() }</h2>
+          <p>Доступ к словарю по API: 
+            <a href="{ '/trac/api/output/' || $domain || '/dictionaries/' || $group }">
+              {'/trac/api/output/' || $domain || '/dictionaries/' || $group }
+            </a>
+          </p>
           <ul>{
             for $i in $data[ @aboutType= $group ]/row [ 
                 position() >= $pagination?first and
