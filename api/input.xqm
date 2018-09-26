@@ -6,7 +6,7 @@ import module namespace parse = "http://www.iro37.ru/stasova/TRCI-parse" at "../
 
 declare
   %updating
-  %rest:path("/trac/api/input/owner/data/users")
+  %rest:path("/trac/api/input/owner/Data")
   %rest:method("post")
   %rest:form-param("file", "{$file}")
   %rest:form-param("callback", "{$callback}")
@@ -16,13 +16,19 @@ function input:users (  $file, $callback, $domain, $token )
 {
   if ( auth:get-session-scope ( $domain, $token ) = "owner" )
   then (
-      let $data := parse:from-xlsx( xs:base64Binary($file(map:keys($file)[1] )) )
-      let $model := $conf:domain ($domain)/data/owner/table[@type="Model" and @aboutType="users"]
-      let $users-info := parse:data ( $data, $model )       
-      
-      return       
-        replace node  $conf:domain ($domain)/data/owner/table[@type="Data" and @aboutType="users"] with $users-info,  
-      db:output( web:redirect($conf:rootUrl || $callback , map {"group" : "users", "message" : "Файл загружен"})) 
+      let $rawData := parse:from-xlsx( xs:base64Binary($file(map:keys($file)[1] )) )
+      let $model := $conf:domain ($domain)/data/owner/table[@type="Model" and @aboutType= $rawData/@aboutType ]
+      let $newData := parse:data ( $rawData, $model )       
+      let $oldData := $conf:domain ($domain)/data/owner/table[@type="Data" and @aboutType= $rawData/@aboutType ]
+      return
+        if ( $oldData )
+        then (
+          replace node $oldData with $newData
+        )
+        else (
+          insert node $newData into $conf:domain ($domain)/data/owner
+        ),  
+      db:output( web:redirect($conf:rootUrl || $callback , map { "message" : "Файл загружен" })) 
   )
   else (
     db:output(web:redirect($callback, map{"message":"Ошибка авторизации"}))
@@ -31,7 +37,7 @@ function input:users (  $file, $callback, $domain, $token )
 
 declare
   %updating
-  %rest:path("/trac/api/input/owner/data/class")
+  %rest:path("/trac/api/input/owner/data/class1")
   %rest:method("post")
   %rest:form-param("file", "{$file}")
   %rest:form-param("callback", "{$callback}")

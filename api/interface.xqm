@@ -24,17 +24,17 @@ function int:nav-owner ( $domain )
 {
   <table domain="{$domain}">
     <row>
-      <cell id="id">model</cell>
+      <cell id="id">Model</cell>
       <cell id="label">Модели</cell>
       <cell id="href">owner/{$domain}/Model</cell>
     </row>
     <row>
-      <cell id="id">resource</cell>
+      <cell id="id">Data</cell>
       <cell id="label">Данные</cell>
       <cell id="href">owner/{$domain}/Data</cell>
     </row>
     <row>
-      <cell id="id">dictionaries</cell>
+      <cell id="id">Dictionaries</cell>
       <cell id="label">Словари</cell>
       <cell id="href">owner/{$domain}/Dictionaries</cell>
     </row>
