@@ -8,12 +8,12 @@ import module namespace conf = 'http://iro37.ru/xq/modules/config' at "../config
 import module namespace inter = 'http://www.iro37.ru/trac/lib/interface' at "../lib/inter.xqm";
 
 declare
-  %rest:path("/trac/owner/{$domain}")
+  %rest:path("/trac/{ $scope }/{$domain}")
   %output:method ('xhtml')
-function view:owner-main( $domain ) {
-  if ( auth:get-session-scope ( $domain, Session:get('token') ) = "owner"  )
+function view:owner-main( $scope, $domain ) {
+  if ( auth:get-session-scope ( $domain, Session:get('token') ) = $scope  )
   then (
-    let $nav-items-data := fetch:xml ( web:create-url($conf:menuUrl("owner"), map{"domain":$domain}))/table
+    let $nav-items-data := fetch:xml ( web:create-url($conf:menuUrl($scope), map{"domain":$domain}))/table
     let $nav := inter:build-menu-items ($nav-items-data)
     let $content := 
         <p>Добро пожаловать на страницу владельца домена <b>"{$conf:db//domain[@id=$domain]/@label/data()}"</b></p>
@@ -28,72 +28,79 @@ function view:owner-main( $domain ) {
 
 };
 
-
 declare
-  %rest:path("/trac/owner/{$domain}/Data1")
-  %rest:query-param("group", "{$group}")
+  %rest:path("/trac/{$scope}/{$domain}/{$section}")
+  %rest:query-param("group", "{$group}")  
   %rest:query-param("item", "{$item}")
+  %rest:query-param("pagination", "{$pagination}")
   %rest:query-param("message", "{$message}")
   %output:method ('xhtml')
-function view:owner-data( $domain, $group, $item, $message ) {
-  if ( auth:get-session-scope ( $domain, Session:get('token') ) = "owner"  )
+function view:owner-section ( $scope, $domain, $section, $group,  $item, $pagination, $message ) {
+
+  if ( auth:get-session-scope ( $domain, Session:get('token') ) =  $scope )
   then (
-    let $nav-items-data := fetch:xml ( web:create-url($conf:menuUrl("owner"), map{"domain":$domain}))/table
+    
+    let $data :=  $conf:domain ( $domain )/data/child::*[ name() = $scope ]/table[ @type= $section ]
+    let $group := if ( $group ) then ( $group ) else ( $data[ 1 ]/@aboutType )
+    let $models := $conf:domain ( $domain )/data/owner/table[ @type = "Model" and @aboutType = $data/@aboutType ]
+    let $model := $models[ @aboutType= $group ]
+     
+    let $pagination := 
+      if ( $pagination ) 
+      then (  number (tokenize ($pagination, "-")[1]), number (tokenize ($pagination, "-")[2]) ) 
+      else ( (1, 10) )
+      
+    let $item := if ( $item ) then ( $item ) else ( $data[@aboutType = $group ]/row[ $pagination[1] ]/cell[@id="id"]/text() )
+    
+    let $nav-items-data := fetch:xml ( web:create-url($conf:menuUrl($scope), map{"domain":$domain}))/table
     let $nav := inter:build-menu-items ($nav-items-data)
-    let $models :=  $conf:domain ( $domain )/data/owner/table[@type="Model"]
-    let $data :=  $conf:domain ( $domain )/data/owner/table[@type="Data"]
-    let $group := if ($group) then ($group) else ( $data[1]/@aboutType/data())
-    let $item := if ($item) then ($item) else ( $data[@aboutType/data() = $group]/row[1]/cell[@id="id"] )
-    let $callback := '/trac/owner/' || $domain || "/Data"
-    let $action := 'owner/data/' || $group
+    
+    let $sectionLabel := $nav-items-data/row[ cell[@id="id" ] = $section ]/cell[ @id="label" ]/text()
+   
+    let $callback := string-join (( "/trac", $scope , $domain, $section), "/")
+    let $action := string-join (($scope, $section), "/" )
     let $token := Session:get('token')
     let $inputForm := inter:form-update ( $callback , $action, $token, $domain )
     
     let $sidebar :=
       <div>
-        <h2>Данные</h2>
-        <ul>
-        {
-          for $i in $models
-          return 
-            <li><a href="?group={$i/@aboutType/data()}">{$i/@label/data()}</a></li>
-        }
-        </ul>
+        <h2>{ $sectionLabel }</h2>
+        { inter:section-groups ( $models ) }
         <div class="border-top">
           <p><i>{$message}</i></p>
           {$inputForm}
         </div>
       </div>    
-    
+
     let $content :=
       <div class="row">
         <div class="col-md-6 border-right"> 
-          <h2>{$models[@aboutType= $group ]/@label/data()}</h2>
-          <ul>{
-            for $i in $data[@aboutType= $group ]/row
-            return
-              <li>
-                <a href="?group={$group}&amp;item={$i/cell[@id='id']}">
-                  {$i/cell[@id="label"]}
-                </a>
-              </li>
-          }</ul>
+          <h2>{ $model/@label/data() }</h2>
+          {
+            if ( $section = "Dictionaries")
+            then (
+                <a href="{ string-join ( ('/trac/api/output', $domain, 'dictionaries', $group), '/') }">
+                  (доступ к словарю по API) 
+                </a>   
+            )
+            else ()
+          }
+          <div>
+            { inter:group-items ( $data[ @aboutType = $group ], $pagination  ) }
+            { inter:pagination ( $group, $pagination, $data ) }
+          </div>
         </div>
-        
         <div class="col-md-6">
-          <h2>{  $data[@aboutType = $group ]/@label/data() }</h2>
-          <table class="table table-striped">{
-            for $i in $data/row[ @id = $group || "/" || $item ]/cell
-            let $cellLabel := $models[@aboutType= $group ]/row [@id = $group || "/" || $i/@id ] /cell [@id="label"]
-            return
-              <tr>
-                <th>{ $cellLabel }</th>
-                <td>{$i/text()}</td>
-              </tr>
-          }</table>
+          <h2> { 
+            let $itemLabel := $data [@aboutType = $group ] /@label/data()
+            return concat (upper-case (substring ( $itemLabel, 1, 1)), substring ( $itemLabel, 2 ))
+            }</h2>
+          {
+            inter:item-properties ( $model, $data/row[ @id = $group || "/" || $item ] )
+          }
         </div>
       </div>
-      
+    
     let $template := serialize( doc("../src/main-tpl.html") )
     let $map := map{ "nav":$nav, "sidebar" :  $sidebar, "content" : $content }
     return st:fill-html-template( $template, $map )//html 
@@ -104,79 +111,44 @@ function view:owner-data( $domain, $group, $item, $message ) {
 };
 
 declare
-  %rest:path("/trac/owner/{$domain}/Model1")
+  %rest:path("/trac/{$scope}/{$domain}/OpenData")
   %rest:query-param("group", "{$group}")  
   %rest:query-param("item", "{$item}")
   %rest:query-param("pagination", "{$pagination}")
   %rest:query-param("message", "{$message}")
   %output:method ('xhtml')
-function view:owner-model( $domain, $group,  $item, $pagination, $message ) {
-  if ( auth:get-session-scope ( $domain, Session:get('token') ) = "owner"  )
+function view:open-data ( $scope, $domain, $group,  $item, $pagination, $message ) {
+
+  if ( auth:get-session-scope ( $domain, Session:get('token') ) =  $scope )
   then (
-    let $nav-items-data := fetch:xml ( web:create-url($conf:menuUrl("owner"), map{"domain":$domain}))/table
+    let $nav-items-data := fetch:xml ( web:create-url($conf:menuUrl($scope), map{"domain":$domain}))/table
     let $nav := inter:build-menu-items ($nav-items-data)
-    let $data :=  $conf:domain ( $domain )/data/owner/table[@type="Model"]
-    
-    let $group := if ( $group ) then ( $group ) else ( $data[ 1 ]/@aboutType )    
-    let $pagination := 
-      if ( $pagination ) 
-      then ( 
-          map{ 
-            "first" : number(substring-before ( $pagination, "-" )),
-            "last" : number(substring-after ( $pagination, "-" )) }
-      ) 
-      else ( map{ "first" : 1, "last" : 10 } )
-    let $item := if ( $item ) then ( $item ) else ( $data[@aboutType = $group ]/row[ $pagination?first ]/cell[@id="id"]/text() )
-    
-    let $callback := '/trac/owner/' || $domain || "/Model"
-    let $action := 'owner/Model'
-    let $token := Session:get('token')
-    let $inputForm := inter:form-update ( $callback , $action, $token, $domain )
-    
+   
+ 
     let $sidebar :=
       <div>
-        <h2>Модели</h2>
-        <ul>
-        {
-          for $i in $data
-          return 
-            <li><a href="?group={$i/@aboutType/data()}">{$i/@label/data()}</a></li>
-        }
-        </ul>
-        <div class="border-top">
-          <p><i>{$message}</i></p>
-          {$inputForm}
-        </div>
+        <h2> Открытые данные </h2>
+        <a href="#">Школы</a>
       </div>    
 
     let $content :=
       <div class="row">
-        <div class="col-md-6 border-right"> 
-          <h2>{$data[@aboutType= $group ]/@label/data()}</h2>
-          <ul>{
-            for $i in $data[@aboutType= $group ]/row
-            return
-              <li>
-                <a href="?group={$group}&amp;item={$i/cell[@id='id']}">
-                  {$i/cell[@id="label"]}
-                </a>
-              </li>
-          }</ul>
+        <div class="col-md-12 border-right"> 
+        <h2>Сведения о функционировании системы общего образования</h2>
+        <p>Источник: 
+          <a href="http://opendata.mon.gov.ru/opendata/7710539135-OO">портал открытых данных Минобрнауки России</a>
+        </p>
+          {
+            fetch:xml( web:create-url ("http://localhost:8984/trac/opendata/schools", 
+            map {
+              "path":"http://opendata.mon.gov.ru/opendata/7710539135-OO/data-20160701T102009-structure-20150907.csv",
+              "class" : "table table-striped"
+            }
+          ))
+          }
         </div>
         
-        <div class="col-md-6">
-          <h2>{ $data/row[ @id = $group || "/" || $item ]/cell[@id="label"] }</h2>
-          <table class="table table-striped">{
-            for $i in $data/row[ @id = $group || "/" || $item ]/cell
-            return
-              <tr>
-                <th>{$i/@id/data()}</th>
-                <td>{$i/text()}</td>
-              </tr>
-          }</table>
-        </div>
       </div>
-
     
     let $template := serialize( doc("../src/main-tpl.html") )
     let $map := map{ "nav":$nav, "sidebar" :  $sidebar, "content" : $content }

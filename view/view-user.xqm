@@ -8,7 +8,7 @@ import module namespace conf = 'http://iro37.ru/xq/modules/config' at "../config
 import module namespace inter = 'http://www.iro37.ru/trac/lib/interface' at "../lib/inter.xqm";
 
 declare
-  %rest:path("/trac/user/{$domain}")
+  %rest:path("/trac/user1/{$domain}")
   %output:method ('xhtml')
 function view:user( $domain ) {
   let $template := serialize( doc("../src/main-tpl.html") )

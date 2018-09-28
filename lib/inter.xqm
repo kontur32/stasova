@@ -71,8 +71,8 @@ function inter:group-items (
 
 declare
 function inter:item-properties ( 
-      $model as element(table), 
-      $data as element(row) )
+      $model as element(table)*, 
+      $data as element(row)* )
 {
     <table class="table table-striped">{
       for $i in $data/cell
