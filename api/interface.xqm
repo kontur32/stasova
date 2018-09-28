@@ -13,6 +13,11 @@ function int:nav-main1 (  )
       <cell id="label">Домены</cell>
       <cell id="href">domains</cell>
     </row>
+    <row>
+      <cell id="id">OpenData</cell>
+      <cell id="label">Открытые данные</cell>
+      <cell id="href">OpenData</cell>
+    </row>
   </table>
 };
 
