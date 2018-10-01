@@ -30,7 +30,8 @@ function parse:model ($data as element(table))
     for $r in $data/row
     return 
       element {"row"} {
-        attribute {"id"} { $data/@aboutType || "/" || $r/cell[@label="id"]/text()},
+        attribute {"id"} { $r/cell[@label="id"]/text()},
+        attribute {"type"} { $data/@aboutType/data()},
         for $c in $r/cell
         return
           $c 
@@ -41,15 +42,20 @@ function parse:model ($data as element(table))
 
 declare 
   %public
-function parse:data ($data as element(table), $model as element(table))
+function parse:data ( 
+  $data as element(table),
+  $model as element(table),
+  $parserUrl 
+  )
 {
   element { "table" } {
     $data/attribute::*,
     for $r in $data/row
-    let $idLabel := $model//row [@id= $model/@aboutType/data() || "/id"]/cell[@id="label"]/text()
+    let $idLabel := $model//row [ @id =  "id" ]/cell[ @id = "label" ]/text()
+    let $rowID := $r/cell[ @label= $idLabel ]/text()
     return 
-      element {"row"} {
-        attribute {"id"} { $data/@aboutType || "/" || $r/cell[ @label= $idLabel ]/text() },
+      element { "row" } {
+        attribute {"id"} { $rowID },
         attribute {"type"} { $data/@aboutType },
         for $c in $r/cell
         let $modelCell := $model/row[ cell[@id="label"]/text() = $c/@label/data()]
@@ -59,17 +65,11 @@ function parse:data ($data as element(table), $model as element(table))
           else ( fn:encode-for-uri ($c/@label/data()) )
         let $cellData :=
           if ($modelCell/cell[@id="parser"])
-          then ( 
-            try {
-              fetch:text( 
-                web:create-url(
-                  "http://localhost:8984/trac/api/parser/" || $modelCell/cell[@id="parser"]/text(),
-                   map { "data" : $c/text()} )
-              )
-            }
-            catch * {
-              ""
-            }
+          then (
+            parse:parse-fetch ( 
+              $c/text(), 
+              $rowID,
+              $parserUrl || $modelCell/cell[@id="parser"]/text() ) 
           )
           else ( $c/text() )  
         
@@ -79,5 +79,25 @@ function parse:data ($data as element(table), $model as element(table))
             $cellData
           }            
       } 
+  }
+};
+
+declare 
+  %private
+function parse:parse-fetch ( 
+   $data,
+   $id,
+   $path
+  )
+{
+  try {
+  fetch:text( 
+    web:create-url(
+      $path,
+       map { "data" : $data, "id" : $id } )
+    )
+  }
+  catch * {
+    ""
   }
 };

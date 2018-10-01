@@ -1,6 +1,5 @@
  module namespace conf = 'http://iro37.ru/xq/modules/config';
 
-
 declare variable $conf:db := db:open('trac-dev');
 declare variable $conf:domain :=
        function ($domain) { 
@@ -17,6 +16,7 @@ declare variable $conf:getUser :=
 declare variable $conf:session-duration := xs:dayTimeDuration('PT600S');
 declare variable $conf:base := 'trac';
 declare variable $conf:rootUrl := "http://localhost:8984" ;
+declare variable $conf:parserUrl := "http://localhost:8984/trac/api/parser/" ;
 declare variable $conf:menuUrl := 
       function ($level) {
         $conf:rootUrl || "/" || $conf:base || "/api/interface/menu/" || $level

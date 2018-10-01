@@ -58,8 +58,8 @@ function view:owner-section ( $scope, $domain, $section, $group,  $item, $pagina
     let $sectionLabel := $nav-items-data/row[ cell[@id="id" ] = $section ]/cell[ @id="label" ]/text()
    
     let $callback := string-join (( "/trac", $scope , $domain, $section), "/")
-    let $action := string-join (($scope, $section), "/" )
-    let $token := Session:get('token')
+    let $action := "/" || $scope
+    let $token := Session:get( 'token' )
     let $inputForm := inter:form-update ( $callback , $action, $token, $domain )
     
     let $sidebar :=
@@ -92,11 +92,12 @@ function view:owner-section ( $scope, $domain, $section, $group,  $item, $pagina
         </div>
         <div class="col-md-6">
           <h2> { 
-            let $itemLabel := $data [@aboutType = $group ] /@label/data()
-            return concat (upper-case (substring ( $itemLabel, 1, 1)), substring ( $itemLabel, 2 ))
-            }</h2>
+            let $itemLabel := $data [ @aboutType = $group ] /@label/data()
+            return 
+              concat (upper-case (substring ( $itemLabel, 1, 1)), substring ( $itemLabel, 2 ))
+          }</h2>
           {
-            inter:item-properties ( $model, $data/row[ @id = $group || "/" || $item ] )
+            inter:item-properties ( $model, $data/row[ @id =  $item ] )
           }
         </div>
       </div>

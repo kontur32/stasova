@@ -23,12 +23,41 @@ declare
   %rest:path("/trac/api/parser/sha-256")
   %rest:method('GET')
   %rest:query-param("data", "{$data}")
-function output:parser-password ( $data )
+function output:parser-hash ( $data )
 {
  if ($data)
  then ( string(hash:hash( $data, 'sha-256' )) )
  else ()
 };
+
+declare
+  %rest:path("/trac/api/parser/psw")
+  %rest:method('GET')
+  %rest:query-param("data", "{$data}")
+  %rest:query-param("id", "{$id}")
+function output:parser-psw ( $data, $id )
+{
+ if ($data)
+ then ( 
+   element {"table"} {
+     attribute { "type" } { "Data" },
+     element {"row"} {
+        attribute { "type" } { "pswRecord" },
+        attribute { "id" } { $id },
+       element {"cell"} {
+         attribute {"id"} { "password" },
+         $data
+       },
+       element { "cell" } {
+         attribute {"id"} { "hash" },
+         string(hash:hash( $data, 'sha-256' )) 
+       }
+     }
+   }
+ )
+ else ()
+};
+
 
 declare
   %rest:path("/trac/api/output/{$domain}/dictionaries/{$aboutType}")

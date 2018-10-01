@@ -76,7 +76,7 @@ function inter:item-properties (
 {
     <table class="table table-striped">{
       for $i in $data/cell
-      let $cellLabel := $model/row [@id= $data/@type || "/" || $i/@id ]/cell[@id="label"]/text()
+      let $cellLabel := $model/row [@id=  $i/@id ]/cell[@id="label"]/text()
       return
         <tr>
           <th>{ if ( $cellLabel ) then ( $cellLabel) else ( $i/@id/data() ) }</th>
