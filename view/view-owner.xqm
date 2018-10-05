@@ -58,7 +58,7 @@ function view:owner-section ( $scope, $domain, $section, $group,  $item, $pagina
     let $sectionLabel := $nav-items-data/row[ cell[@id="id" ] = $section ]/cell[ @id="label" ]/text()
    
     let $callback := string-join (( "/trac", $scope , $domain, $section), "/")
-    let $action := "/" || $scope
+    let $action := $scope
     let $token := Session:get( 'token' )
     let $inputForm := inter:form-update ( $callback , $action, $token, $domain )
     

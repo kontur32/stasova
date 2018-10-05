@@ -23,25 +23,6 @@ function parse:from-xlsx($file as xs:base64Binary)
 
 declare 
   %public
-function parse:model ($data as element(table))
-{
-  element { "table" } {
-    $data/attribute::*,
-    for $r in $data/row
-    return 
-      element {"row"} {
-        attribute {"id"} { $r/cell[@label="id"]/text()},
-        attribute {"type"} { $data/@aboutType/data()},
-        for $c in $r/cell
-        return
-          $c 
-           update replace node ./@label with attribute {"id"} {fn:encode-for-uri ($c/@label/data() )}
-      } 
-  }
-};
-
-declare 
-  %public
 function parse:data ( 
   $data as element(table),
   $model as element(table),
@@ -50,21 +31,23 @@ function parse:data (
 {
   element { "table" } {
     $data/attribute::*,
+    attribute { "dateTime" } { current-dateTime() },
     for $r in $data/row
-    let $idLabel := $model//row [ @id =  "id" ]/cell[ @id = "label" ]/text()
+    let $idLabel := $model/row [ @id =  "id" ]/cell[ @id = "label" ]/text()
     let $rowID := $r/cell[ @label= $idLabel ]/text()
+    let $rowID := if ( $rowID ) then ( $rowID ) else ( $r/cell[ @label="id"]/text() )
     return 
       element { "row" } {
         attribute {"id"} { $rowID },
         attribute {"type"} { $data/@aboutType },
         for $c in $r/cell
-        let $modelCell := $model/row[ cell[@id="label"]/text() = $c/@label/data()]
+        let $modelCell := $model/row[ cell[@id="label"]/text() = $c/@label/data() ]
         let $cellId := 
           if ($modelCell/cell[@id="id"]/text())
           then ( $modelCell/cell[@id="id"]/text() )
           else ( fn:encode-for-uri ($c/@label/data()) )
-        let $cellData :=
-          if ($modelCell/cell[@id="parser"])
+        let $cellData := 
+          if ( $modelCell/cell[@id="parser"]/text() )
           then (
             parse:parse-fetch ( 
               $c/text(), 
@@ -83,7 +66,7 @@ function parse:data (
 };
 
 declare 
-  %private
+  %public
 function parse:parse-fetch ( 
    $data,
    $id,
@@ -91,11 +74,14 @@ function parse:parse-fetch (
   )
 {
   try {
-  fetch:text( 
+  let $data := fetch:text( 
     web:create-url(
       $path,
        map { "data" : $data, "id" : $id } )
     )
+    return 
+      try { parse-xml ($data) }
+      catch* { $data }
   }
   catch * {
     ""

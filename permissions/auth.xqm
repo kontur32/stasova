@@ -73,7 +73,7 @@ declare
       $session/@token/data() = $token and ( xs:dateTime ($session/@expires/data() ) - current-dateTime() ) div xs:dayTimeDuration('PT1S') > 0 
   }; 
   
-    declare 
+  declare 
   function  
     auth:get-session-scope ( $domain, $token )
   {
@@ -81,6 +81,16 @@ declare
     where  auth:validate-session ( $domain, $token )
     return   
      $session/@scope/data() 
+  }; 
+  
+  declare 
+  function  
+    auth:get-session-user ( $domain, $token )
+  {
+    let $session := $conf:db/domains/domain[@id = $domain]/sessions/session[@token/data() = $token]
+    where  auth:validate-session ( $domain, $token )
+    return   
+     $session/@userid/data() 
   }; 
   
    declare function 

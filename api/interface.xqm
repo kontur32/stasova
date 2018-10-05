@@ -59,9 +59,9 @@ function int:nav-user ( $domain )
 {
   <table domain="{$domain}">
     <row>
-      <cell id="id">Model</cell>
-      <cell id="label">Модели</cell>
-      <cell id="href">user/{$domain}/Model</cell>
+      <cell id="id">Courses</cell>
+      <cell id="label">Курсы</cell>
+      <cell id="href">user/{$domain}/Сourses</cell>
     </row>
     <row>
       <cell id="id">Data</cell>
