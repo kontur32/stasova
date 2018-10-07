@@ -38,28 +38,30 @@ function parse:data (
     let $rowID := if ( $rowID ) then ( $rowID ) else ( $r/cell[ @label="id"]/text() )
     return 
       element { "row" } {
-        attribute {"id"} { $rowID },
-        attribute {"type"} { $data/@aboutType },
+        attribute { "id" } { $rowID },
+        attribute { "type" } { $data/@aboutType },
+        
         for $c in $r/cell
         let $modelCell := $model/row[ cell[@id="label"]/text() = $c/@label/data() ]
         let $cellId := 
           if ($modelCell/cell[@id="id"]/text())
           then ( $modelCell/cell[@id="id"]/text() )
-          else ( fn:encode-for-uri ($c/@label/data()) )
+          else ( encode-for-uri ($c/@label/data()) )
+        
         let $cellData := 
-          if ( $modelCell/cell[@id="parser"]/text() )
+           if ( $modelCell/cell[@id="parser"]/text() )
           then (
             parse:parse-fetch ( 
               $c/text(), 
               $rowID,
               $parserUrl || $modelCell/cell[@id="parser"]/text() ) 
           )
-          else ( $c/text() )  
+          else ( $c/text() ) 
         
         return
           element {"cell"} {
             attribute {"id"} { $cellId },
-            $cellData
+            if ( $cellId = "id" ) then ( iri-to-uri ( $cellData ) ) else ( $cellData )
           }            
       } 
   }
@@ -80,8 +82,8 @@ function parse:parse-fetch (
        map { "data" : $data, "id" : $id } )
     )
     return 
-      try { parse-xml ($data) }
-      catch* { $data }
+      try {parse-xml($data)}
+      catch * { $data }
   }
   catch * {
     ""

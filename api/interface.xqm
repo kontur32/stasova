@@ -5,7 +5,7 @@ import module namespace conf = 'http://iro37.ru/xq/modules/config' at "../config
 declare
   %rest:path("/trac/api/interface/menu/main")
   %rest:method('GET')
-function int:nav-main1 (  )
+function int:nav-main (  )
 {
   <table>
     <row>
@@ -39,11 +39,6 @@ function int:nav-owner ( $domain )
       <cell id="href">owner/{$domain}/Data</cell>
     </row>
     <row>
-      <cell id="id">Dictionaries</cell>
-      <cell id="label">Словари</cell>
-      <cell id="href">owner/{$domain}/Dictionaries</cell>
-    </row>
-    <row>
       <cell id="id">OpenData</cell>
       <cell id="label">Открытые данные</cell>
       <cell id="href">owner/{$domain}/OpenData</cell>
@@ -59,19 +54,9 @@ function int:nav-user ( $domain )
 {
   <table domain="{$domain}">
     <row>
-      <cell id="id">Courses</cell>
+      <cell id="id">course</cell>
       <cell id="label">Курсы</cell>
-      <cell id="href">user/{$domain}/Сourses</cell>
+      <cell id="href">user/{$domain}/course</cell>
     </row>
-    <row>
-      <cell id="id">Data</cell>
-      <cell id="label">Данные</cell>
-      <cell id="href">user/{$domain}/Data</cell>
-    </row>
-    <row>
-      <cell id="id">Dictionaries</cell>
-      <cell id="label">Словари</cell>
-      <cell id="href">user/{$domain}/Dictionaries</cell>
-    </row>
-  </table>
+ </table>
 };

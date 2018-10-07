@@ -15,7 +15,7 @@ declare variable $conf:models :=
 
 declare variable $conf:userData :=
        function ($domain, $userID) { 
-        $conf:db/domains/domain[ @id= $domain ]/data/user[ @id = $userID ]/table
+        $conf:domain( $domain )/data/user[ @id = $userID ]
        };
 
 declare variable $conf:ownerData :=

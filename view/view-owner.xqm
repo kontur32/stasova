@@ -76,15 +76,9 @@ function view:owner-section ( $scope, $domain, $section, $group,  $item, $pagina
       <div class="row">
         <div class="col-md-6 border-right"> 
           <h2>{ $model/@label/data() }</h2>
-          {
-            if ( $section = "Dictionaries")
-            then (
-                <a href="{ string-join ( ('/trac/api/output', $domain, 'dictionaries', $group), '/') }">
-                  (доступ к словарю по API) 
+                <a href="{ string-join ( ('/trac/api/output/Data', $domain, $scope, $group), '/') }">
+                  (открытый доступ по API)
                 </a>   
-            )
-            else ()
-          }
           <div>
             { inter:group-items ( $data[ @aboutType = $group ], $pagination  ) }
             { inter:pagination ( $group, $pagination, $data ) }

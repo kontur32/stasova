@@ -1,5 +1,4 @@
 module namespace output = "http://www.iro37.ru/stasova/api/output";
-
 import  module namespace conf = 'http://iro37.ru/xq/modules/config' at "../config.xqm";
 import module namespace auth = 'http://iro37.ru/xq/modules/auth' at '../permissions/auth.xqm';
 

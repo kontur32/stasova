@@ -7,7 +7,6 @@ import module namespace st = 'http://www.iro37.ru/trac/funct' at "../functions.x
 import module namespace conf = 'http://iro37.ru/xq/modules/config' at "../config.xqm";
 import module namespace inter = 'http://www.iro37.ru/trac/lib/interface' at "../lib/inter.xqm";
 
-
 declare
   %rest:path("/trac/user/{$domain}/{$section}")
   %rest:query-param("group", "{$group}")  
@@ -19,66 +18,101 @@ function view:user-section (  $domain, $section, $group,  $item, $pagination, $m
 
   if ( auth:get-session-scope ( $domain, Session:get('token') ) =  "user" )
   then (
-    
-    let $data :=  $conf:userData ( $domain, Session:get( 'id' ) ) [ @type= $section ]
-    let $group := if ( $group ) then ( $group ) else ( $data[ 1 ]/@aboutType )
-    let $models := $conf:models ( $domain ) [ @aboutType = $data/@aboutType ]
-    let $model := $models[ @aboutType= $group ]
-     
-    let $pagination := 
-      if ( $pagination ) 
-      then (  number (tokenize ($pagination, "-")[1]), number (tokenize ($pagination, "-")[2]) ) 
-      else ( (1, 10) )
-      
-    let $item := if ( $item ) then ( $item ) else ( $data[@aboutType = $group ]/row[ $pagination[1] ]/cell[@id="id"]/text() )
-    
+   
     let $nav-items-data := fetch:xml ( web:create-url($conf:menuUrl( "user" ), map{"domain":$domain}))/table
     let $nav := inter:build-menu-items ($nav-items-data)
-    
-    let $sectionLabel := $nav-items-data/row[ cell[@id="id" ] = $section ]/cell[ @id="label" ]/text()
    
     let $callback := string-join (( "/trac", "user" , $domain, $section), "/")
-    let $action :=  "user"
+    let $action :=  "user/student"
     let $token := Session:get( 'token' )
-    let $inputForm := inter:form-update ( $callback , $action, $token, $domain )
+    let $inputForm := inter:form-update ( $callback , $action, $token, $domain, $group )
     
     let $sidebar :=
       <div>
-        <h2>{ $sectionLabel }</h2>
-        { inter:section-groups ( $models ) }
-        <div class="border-top">
-          <p><i>{$message}</i></p>
-          {$inputForm}
-        </div>
+        <h2>Курсы</h2>
+        <ul>
+        {
+          for $c in $conf:domain("ood")/data/owner/table [@type="Data" and @aboutType=$section]/row
+          return
+            <li><a href="{'?group=' || $c/cell[@id='id']/text()}">{ $c/cell[@id="label"]/text() }</a></li>
+        }</ul>
       </div>    
 
     let $content :=
       <div class="row">
         <div class="col-md-6 border-right"> 
-          <h2>{ $model/@label/data() }</h2>
+          <h2>Слушатели курса</h2>
+          <ul>
           {
-            if ( $section = "Dictionaries")
-            then (
-                <a href="{ string-join ( ('/trac/api/output', $domain, 'dictionaries', $group), '/') }">
-                  (доступ к словарю по API) 
-                </a>   
-            )
-            else ()
-          }
-          <div>
-            { inter:group-items ( $data[ @aboutType = $group ], $pagination  ) }
-            { inter:pagination ( $group, $pagination, $data ) }
-          </div>
-        </div>
-        <div class="col-md-6">
-          <h2> { 
-            let $itemLabel := $data [ @aboutType = $group ] /@label/data()
+            for $s in $conf:userData("ood", "poa")/table[@id=$group ]/row
+            order by $s/cell[@id="familyName"]
+            let $href := 
+              web:create-url ( "/trac/api/output/Data/" || $domain, 
+                map {
+                  "class" : "student",
+                  "subject" : $s/@id/data(),
+                  "container" : $group,
+                  "token" : $token
+                }
+              )
             return 
-              concat (upper-case (substring ( $itemLabel, 1, 1)), substring ( $itemLabel, 2 ))
-          }</h2>
-          {
-            inter:item-properties ( $model, $data/row[ @id =  $item ] )
+              <li>
+                <a target="_blank"  href= "{ $href }"  >
+                  {string-join ( $s/cell[@id=("familyName", "givenName", "secondName")]/text() , " ")}
+                 </a>
+              </li>
           }
+          </ul>
+          <div class="border-top">
+            <p><b>Загрузить (обрновить)</b></p>
+            <p><i>{$message}</i></p>
+            {$inputForm}
+          </div>
+         </div>
+        <div class="col-md-6">
+          <h2>Отчеты</h2>
+          <table class="table table-striped">
+            <tr></tr>
+            <tr>
+              <td>
+                Приказ о зачислении<br/>
+                <i><a href="http://iro37.ru/res/tpl/%d0%bf%d1%80%d0%b8%d0%ba%d0%b0%d0%b7_%d0%b7%d0%b0%d1%87%d0%b8%d1%81%d0%bb%d0%b5%d0%bd%d0%b8%d0%b5.docx">(шаблон)</a></i>
+              </td>
+              <td><a target="_blank" href="{
+              web:create-url (  '/trac/api/output/Report/' || $domain || '/1', 
+                map {
+                  'class' : 'student',
+                  'container' : $group,
+                  'token' : $token
+                })
+              }">просмотреть</a></td>
+              <td>
+                <a target="_blank" download="{'Приказ о зачислении ' || $group || '.docx'}"  href="{
+                web:create-url (  '/trac/api/download/Report/' || $domain || '/1', 
+                  map {
+                    'class' : 'student',
+                    'container' : $group,
+                    'token' : $token
+                  })
+                }">скачать</a>                
+              </td>
+              
+            </tr>
+            <tr>
+              <td>Для дистанта<br/>
+                <i><a href="#">(шаблон)</a></i>
+              </td>
+              <td><a target="_blank" href="#">просмотреть</a></td>
+              <td><a target="_blank" href="#">скачать</a></td>
+            </tr>
+            <tr>
+              <td>Приказ об отчислении<br/>
+                <i><a href="#">(шаблон)</a></i>
+              </td>
+              <td><a target="_blank" href="#">просмотреть</a></td>
+              <td><a target="_blank" href="#">скачать</a></td>
+            </tr>
+          </table>
         </div>
       </div>
     

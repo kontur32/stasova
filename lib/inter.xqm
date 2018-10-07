@@ -31,6 +31,20 @@ function inter:form-update ( $callback, $action, $token, $domain )
 };
 
 declare
+function inter:form-update ( $callback, $action, $token, $domain, $group )
+{
+  <form action=  "{ '/trac/api/input/' || $action }" method="POST" enctype="multipart/form-data">
+                  <input type="file" name="file" multiple="multiple"/>
+                  <input type="text" name="group" value="{ $group }" hidden="true" />
+                  <input type="text" name="callback" value="{ $callback }" hidden="true" />
+                  <input type="text" name="domain" value="{ $domain }" hidden="true"/>
+                  <input type="text" name="token" value="{ $token }" hidden="true"/>
+                  <br/>
+                  <input type="submit" value="Обновить/загрузить данные"/>
+              </form>
+};
+
+declare
 function inter:section-groups (
       $data as element(table)*
        )
@@ -90,13 +104,13 @@ function inter:pagination ( $group, $pagination, $data )
 {
    <span>
     <span style="float: left">
-      <a href = "{ web:create-url ('', map { 'pagination': '1-10', 'group': $group } ) }">&lt;&lt; </a>
+      <a href = "{ web:create-url ('', map { 'pagination': '1-10', 'group': $group } ) }"><b><u>&lt;&lt;</u></b> </a>
       <a href="{
         let $first := $pagination[1] - 10
         let $first := if ( $first < 1 ) then ( 1 ) else ( $first )
         let $last  := $first + 9
         return 
-          web:create-url ('', map { 'pagination': $first || '-' || $last, 'group': $group } ) }"> предыдущие</a>
+          web:create-url ('', map { 'pagination': $first || '-' || $last, 'group': $group } ) }"> &lt;</a>
     </span>
     <span style="float: right" >
      <a href="{              
@@ -104,12 +118,12 @@ function inter:pagination ( $group, $pagination, $data )
         let $first := if ($last < 10) then ( 1 ) else ( $last - 9 )
         return 
          web:create-url ('', map { 'pagination': $first || '-' || $last, 'group': $group } ) 
-       }">следующие </a>
+       }">&gt; </a>
      <a href = "{ 
        let $count := count ( $data[ @aboutType = $group]/row )
        let $first := if ( $count < 10 ) then ( 1 ) else ( $count - 9 )
        return
-         web:create-url ('', map { 'pagination': $first || "-" || $first + 9 , 'group': $group } ) }"> &gt;&gt;</a>
+         web:create-url ('', map { 'pagination': $first || "-" || $first + 9 , 'group': $group } ) }"> <b><u>&gt;&gt;</u></b></a>
     </span>
   </span>
 };
