@@ -18,7 +18,7 @@ function view:main()
   let $content := doc('../src/intro.html')
   let $sidebar := 
     <div >
-      <img class="img-fluid"  src="http://iro37.ru/res/img/logo.jpg"/>
+      <img class="img-fluid"  src="http://iro37.ru/res/trac-src/img/logo.jpg"/>
     </div>
   let $map := map{"sidebar": $sidebar, "content":$content, "nav":$nav}
     return st:fill-html-template( $template, $map )//html 
