@@ -64,7 +64,7 @@ function view:user-section (  $domain, $section, $group,  $item, $pagination, $m
           }
           </ul>
           <div class="border-top">
-            <p><b>Загрузить (обрновить)</b></p>
+            <p><b>Загрузить (обновить)</b></p>
             <p><i>{$message}</i></p>
             {$inputForm}
           </div>
@@ -100,6 +100,20 @@ function view:user-section (  $domain, $section, $group,  $item, $pagination, $m
             </tr>
             <tr>
               <td>Для дистанта<br/>
+                <i><a href="#">(шаблон)</a></i>
+              </td>
+              <td><a target="_blank" href="#">просмотреть</a></td>
+              <td><a target="_blank" href="#">скачать</a></td>
+            </tr>
+            <tr>
+              <td>Для бухгалетрии<br/>
+                <i><a href="#">(шаблон)</a></i>
+              </td>
+              <td><a target="_blank" href="#">просмотреть</a></td>
+              <td><a target="_blank" href="#">скачать</a></td>
+            </tr>
+            <tr>
+              <td>Регистрационный лист<br/>
                 <i><a href="#">(шаблон)</a></i>
               </td>
               <td><a target="_blank" href="#">просмотреть</a></td>

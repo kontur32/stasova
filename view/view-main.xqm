@@ -18,7 +18,7 @@ function view:main()
   let $content := doc('../src/intro.html')
   let $sidebar := 
     <div >
-      <img class="img-fluid"  src="http://svptraining.info/wp-content/uploads/2018/02/large-puzzle-piece-template-puzzle-piece-clip-art-free-2-image-large-puzzle-pieces-template-free.jpg"/>
+      <img class="img-fluid"  src="http://iro37.ru/res/img/logo.jpg"/>
     </div>
   let $map := map{"sidebar": $sidebar, "content":$content, "nav":$nav}
     return st:fill-html-template( $template, $map )//html 
