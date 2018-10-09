@@ -17,6 +17,16 @@ declare function inter:build-menu-items ( $data as element(table) )
   </div>
 };
 
+declare function inter:build-menu-login ( $user as element ( table ) )
+{
+  <div class="collapse navbar-collapse justify-content-end">
+    <ul class="nav navbar-nav">
+      <li class="nav-item"><a class="nav-link" href="#"><span>{$user//cell[@id = "label"]/text()}</span><img class="img .img-fluid" style="max-height: 70px;" src="{$user//cell[@id = 'photo']/text()}"/></a></li>
+      <li class="nav-item"><a class="nav-link" href="/trac/logout">Выйти</a></li>
+    </ul>
+</div>
+};
+
 declare
 function inter:form-update ( $callback, $action, $token, $domain )
 {

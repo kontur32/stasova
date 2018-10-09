@@ -8,6 +8,28 @@ import module namespace conf = 'http://iro37.ru/xq/modules/config' at "../config
 import module namespace inter = 'http://www.iro37.ru/trac/lib/interface' at "../lib/inter.xqm";
 
 declare
+  %rest:path("/trac/user/{$domain}")
+  %output:method ('xhtml')
+function view:owner-main( $domain ) {
+  if ( auth:get-session-scope ( $domain, Session:get('token') ) = "user"  )
+  then (
+    let $nav-items-data := fetch:xml ( web:create-url($conf:menuUrl( "user" ), map{"domain":$domain}))/table
+    let $nav := inter:build-menu-items ($nav-items-data)
+    let $userID := auth:get-session-user ( $domain, Session:get('token') )
+    let $nav-login := inter:build-menu-login ( $conf:user ( $domain, $userID ) )
+    
+    let $content := 
+        <p>Добро пожаловать на страницу руководителя КПК <b>"{$conf:domain ( $domain )/@label/data()}"</b></p>
+    let $template := serialize( doc("../src/main-tpl.html") )
+    let $map := map{ "nav":$nav, "nav-login" : $nav-login, "sidebar" :  "", "content" : $content }
+    return st:fill-html-template( $template, $map )//html 
+  )
+  else (
+     web:redirect( '/' || $conf:base )
+  )
+};
+
+declare
   %rest:path("/trac/user/{$domain}/{$section}")
   %rest:query-param("group", "{$group}")  
   %rest:query-param("item", "{$item}")
@@ -21,6 +43,8 @@ function view:user-section (  $domain, $section, $group,  $item, $pagination, $m
    
     let $nav-items-data := fetch:xml ( web:create-url($conf:menuUrl( "user" ), map{"domain":$domain}))/table
     let $nav := inter:build-menu-items ($nav-items-data)
+    let $userID := auth:get-session-user ( $domain, Session:get('token') )
+    let $nav-login := inter:build-menu-login ( $conf:user ( $domain, $userID ) )
    
     let $callback := string-join (( "/trac", "user" , $domain, $section), "/")
     let $action :=  "user/student"
@@ -30,9 +54,10 @@ function view:user-section (  $domain, $section, $group,  $item, $pagination, $m
     let $sidebar :=
       <div>
         <h2>Курсы</h2>
+        <hr/>
         <ul>
         {
-          for $c in $conf:domain("ood")/data/owner/table [@type="Data" and @aboutType=$section]/row
+          for $c in $conf:domain("ood")/data/owner/table[ @type="Data" and @aboutType= $section ]/row
           return
             <li><a href="{'?group=' || $c/cell[@id='id']/text()}">{ $c/cell[@id="label"]/text() }</a></li>
         }</ul>
@@ -42,10 +67,11 @@ function view:user-section (  $domain, $section, $group,  $item, $pagination, $m
       <div class="row">
         <div class="col-md-6 border-right"> 
           <h2>Слушатели курса</h2>
+          <hr/>
           <ul>
           {
-            for $s in $conf:userData("ood", "poa")/table[@id=$group ]/row
-            order by $s/cell[@id="familyName"]
+            for $s in $conf:userData( $domain , $userID )/table[ @id= $group ]/row
+            order by $s/cell[ @id="familyName" ]
             let $href := 
               web:create-url ( "/trac/api/output/Data/" || $domain, 
                 map {
@@ -55,10 +81,11 @@ function view:user-section (  $domain, $section, $group,  $item, $pagination, $m
                   "token" : $token
                 }
               )
-            return 
+             let $link-label := string-join ( $s/cell[@id=("familyName", "givenName", "secondName")]/text() , " ")
+             return 
               <li>
                 <a target="_blank"  href= "{ $href }"  >
-                  {string-join ( $s/cell[@id=("familyName", "givenName", "secondName")]/text() , " ")}
+                  { $link-label }
                  </a>
               </li>
           }
@@ -131,7 +158,7 @@ function view:user-section (  $domain, $section, $group,  $item, $pagination, $m
       </div>
     
     let $template := serialize( doc("../src/main-tpl.html") )
-    let $map := map{ "nav":$nav, "sidebar" :  $sidebar, "content" : $content }
+    let $map := map{ "nav":$nav, "nav-login" : $nav-login, "sidebar" :  $sidebar, "content" : $content }
     return st:fill-html-template( $template, $map )//html 
   )
   else (

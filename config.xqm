@@ -11,7 +11,13 @@ declare variable $conf:models :=
        function ( $domain ) { 
          $conf:domain ( $domain )/data/owner/table [ @type = "Model" ]
        };
-
+       
+declare variable $conf:user :=
+       function ( $domain, $userID ) {
+         <table>{
+           $conf:domain ( $domain )/data/owner/table/row[ @type = "users" and @id = $userID ]
+         }</table> 
+       };       
 
 declare variable $conf:userData :=
        function ($domain, $userID) { 
