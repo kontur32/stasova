@@ -24,7 +24,6 @@ function apioutput:open-data ( $domain, $class, $container, $subject, $token, $o
     let $item := $conf:userData ( $domain,  $userID )/table[ @aboutType = $class and @id=$container ]/row [ @id = $subject ]
     let $item-html := 
           let $content := inter:item-properties ( $model, $item )
-          let $nav := <div></div>
           let $sidebar := 
             <div>
               <h2>{ $model/@label/data() }</h2>
@@ -32,7 +31,7 @@ function apioutput:open-data ( $domain, $class, $container, $subject, $token, $o
             </div>
           
           let $template := serialize( doc("../src/main-tpl.html") )
-          let $map := map{ "nav":$nav, "sidebar" :  $sidebar, "content" : $content }
+          let $map := map{ "nav": "", "nav-login" : "", "sidebar" :  $sidebar, "content" : $content }
           return st:fill-html-template( $template, $map )//html 
 
     return
