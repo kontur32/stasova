@@ -123,35 +123,121 @@ function view:user-section (  $domain, $section, $group,  $item, $pagination, $m
                   })
                 }">скачать</a>                
               </td>
-              
             </tr>
             <tr>
               <td>Для дистанта<br/>
                 <i><a href="#">(шаблон)</a></i>
               </td>
-              <td><a target="_blank" href="#">просмотреть</a></td>
-              <td><a target="_blank" href="#">скачать</a></td>
+              <td><a target="_blank" href="{
+              web:create-url (  '/trac/api/output/Report/' || $domain || '/2', 
+                map {
+                  'class' : 'student',
+                  'container' : $group,
+                  'token' : $token
+                })
+              }">просмотреть</a></td>
+              <td>
+                <a target="_blank" download="{'Сведения для дистанта ' || $group || '.docx'}"  href="{
+                web:create-url (  '/trac/api/download/Report/' || $domain || '/2', 
+                  map {
+                    'class' : 'student',
+                    'container' : $group,
+                    'token' : $token
+                  })
+                }">скачать</a>                
+              </td>
             </tr>
             <tr>
               <td>Для бухгалетрии<br/>
                 <i><a href="#">(шаблон)</a></i>
               </td>
-              <td><a target="_blank" href="#">просмотреть</a></td>
-              <td><a target="_blank" href="#">скачать</a></td>
+              <td><a target="_blank" href="{
+              web:create-url (  '/trac/api/output/Report/' || $domain || '/3', 
+                map {
+                  'class' : 'student',
+                  'container' : $group,
+                  'token' : $token
+                })
+              }">просмотреть</a></td>
+              <td>
+                <a target="_blank" download="{'Сведения для бухгалтерии ' || $group || '.docx'}"  href="{
+                web:create-url (  '/trac/api/download/Report/' || $domain || '/3', 
+                  map {
+                    'class' : 'student',
+                    'container' : $group,
+                    'token' : $token
+                  })
+                }">скачать</a>                
+              </td>            
+            </tr>
+            <tr>
+              <td>Зачетная ведомость<br/>
+                <i><a href="#">(шаблон)</a></i>
+              </td>
+              <td><a target="_blank" href="{
+              web:create-url (  '/trac/api/output/Report/' || $domain || '/4', 
+                map {
+                  'class' : 'student',
+                  'container' : $group,
+                  'token' : $token
+                })
+              }">просмотреть</a></td>
+              <td>
+                <a target="_blank" download="{'Зачетная ведомость ' || $group || '.docx'}"  href="{
+                web:create-url (  '/trac/api/download/Report/' || $domain || '/4', 
+                  map {
+                    'class' : 'student',
+                    'container' : $group,
+                    'token' : $token
+                  })
+                }">скачать</a>                
+              </td>            
             </tr>
             <tr>
               <td>Регистрационный лист<br/>
                 <i><a href="#">(шаблон)</a></i>
               </td>
-              <td><a target="_blank" href="#">просмотреть</a></td>
-              <td><a target="_blank" href="#">скачать</a></td>
+              <td><a target="_blank" href="{
+              web:create-url (  '/trac/api/output/Report/' || $domain || '/5', 
+                map {
+                  'class' : 'student',
+                  'container' : $group,
+                  'token' : $token
+                })
+              }">просмотреть</a></td>
+              <td>
+                <a target="_blank" download="{'Регистрационный лист ' || $group || '.docx'}"  href="{
+                web:create-url (  '/trac/api/download/Report/' || $domain || '/5', 
+                  map {
+                    'class' : 'student',
+                    'container' : $group,
+                    'token' : $token
+                  })
+                }">скачать</a>                
+              </td>
             </tr>
             <tr>
               <td>Приказ об отчислении<br/>
                 <i><a href="#">(шаблон)</a></i>
               </td>
-              <td><a target="_blank" href="#">просмотреть</a></td>
-              <td><a target="_blank" href="#">скачать</a></td>
+              <td><a target="_blank" href="{
+              web:create-url (  '/trac/api/output/Report/' || $domain || '/6', 
+                map {
+                  'class' : 'student',
+                  'container' : $group,
+                  'token' : $token
+                })
+              }">просмотреть</a></td>
+              <td>
+                <a target="_blank" download="{'Регистрационный лист ' || $group || '.docx'}"  href="{
+                web:create-url (  '/trac/api/download/Report/' || $domain || '/6', 
+                  map {
+                    'class' : 'student',
+                    'container' : $group,
+                    'token' : $token
+                  })
+                }">скачать</a>                
+              </td>
             </tr>
           </table>
         </div>

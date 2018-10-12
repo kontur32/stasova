@@ -24,14 +24,14 @@ function parse:from-xlsx($file as xs:base64Binary)
 declare 
   %public
 function parse:data ( 
-  $data as element(table),
-  $model as element(table),
-  $parserUrl 
+  $data as element( table ),
+  $model as element( table ),
+  $parserUrl as item()*
   )
 {
   element { "table" } {
     $data/attribute::*,
-    attribute { "dateTime" } { current-dateTime() },
+    attribute { "updated" } { current-dateTime() },
     for $r in $data/row
     let $idLabel := $model/row [ @id =  "id" ]/cell[ @id = "label" ]/text()
     let $rowID := $r/cell[ @label= $idLabel ]/text()
@@ -52,8 +52,7 @@ function parse:data (
            if ( $modelCell/cell[@id="parser"]/text() )
           then (
             parse:parse-fetch ( 
-              $c/text(), 
-              $rowID,
+              $c/text(),
               $parserUrl || $modelCell/cell[@id="parser"]/text() ) 
           )
           else ( $c/text() ) 
@@ -70,20 +69,19 @@ function parse:data (
 declare 
   %public
 function parse:parse-fetch ( 
-   $data,
-   $id,
-   $path
-  )
+   $q as xs:string,
+   $path as xs:string
+  ) as item()*
 {
   try {
-  let $data := fetch:text( 
+  let $result := fetch:text( 
     web:create-url(
       $path,
-       map { "data" : $data, "id" : $id } )
+       map { "q" : $q } )
     )
     return 
-      try {parse-xml($data)}
-      catch * { $data }
+      try { parse-xml( $result ) }
+      catch * { $result }
   }
   catch * {
     ""

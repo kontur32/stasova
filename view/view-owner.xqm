@@ -15,10 +15,11 @@ function view:owner-main( $scope, $domain ) {
   then (
     let $nav-items-data := fetch:xml ( web:create-url($conf:menuUrl($scope), map{"domain":$domain}))/table
     let $nav := inter:build-menu-items ($nav-items-data)
+    let $nav-login := inter:build-menu-login ( <table/> )
     let $content := 
         <p>Добро пожаловать на страницу владельца домена <b>"{$conf:db//domain[@id=$domain]/@label/data()}"</b></p>
     let $template := serialize( doc("../src/main-tpl.html") )
-    let $map := map{ "sidebar" : "", "content" :  $content, "nav":$nav }
+    let $map := map{ "sidebar" : "", "content" :  $content, "nav":$nav, "nav-login" : $nav-login }
     return st:fill-html-template( $template, $map )//html 
     
   )
@@ -54,6 +55,7 @@ function view:owner-section ( $scope, $domain, $section, $group,  $item, $pagina
     
     let $nav-items-data := fetch:xml ( web:create-url($conf:menuUrl($scope), map{"domain":$domain}))/table
     let $nav := inter:build-menu-items ($nav-items-data)
+    let $nav-login := inter:build-menu-login ( <table/> )
     
     let $sectionLabel := $nav-items-data/row[ cell[@id="id" ] = $section ]/cell[ @id="label" ]/text()
    
@@ -76,7 +78,7 @@ function view:owner-section ( $scope, $domain, $section, $group,  $item, $pagina
       <div class="row">
         <div class="col-md-6 border-right"> 
           <h2>{ $model/@label/data() }</h2>
-                <a href="{ string-join ( ('/trac/api/output/Data', $domain, $scope, $group), '/') }">
+                <a href="{ string-join ( ('/trac/api/Data/public', $domain, $group), '/') || '?q=id:.*'}">
                   (открытый доступ по API)
                 </a>   
           <div>
@@ -97,7 +99,7 @@ function view:owner-section ( $scope, $domain, $section, $group,  $item, $pagina
       </div>
     
     let $template := serialize( doc("../src/main-tpl.html") )
-    let $map := map{ "nav":$nav, "sidebar" :  $sidebar, "content" : $content }
+    let $map := map{ "nav":$nav, "nav-login" : $nav-login, "sidebar" :  $sidebar, "content" : $content }
     return st:fill-html-template( $template, $map )//html 
   )
   else (
@@ -118,7 +120,7 @@ function view:open-data ( $scope, $domain, $group,  $item, $pagination, $message
   then (
     let $nav-items-data := fetch:xml ( web:create-url($conf:menuUrl($scope), map{"domain":$domain}))/table
     let $nav := inter:build-menu-items ($nav-items-data)
-   
+    let $nav-login := inter:build-menu-login ( <table/> )
  
     let $sidebar :=
       <div>
@@ -146,7 +148,7 @@ function view:open-data ( $scope, $domain, $group,  $item, $pagination, $message
       </div>
     
     let $template := serialize( doc("../src/main-tpl.html") )
-    let $map := map{ "nav":$nav, "sidebar" :  $sidebar, "content" : $content }
+    let $map := map{ "nav":$nav, "nav-login" : $nav-login, "sidebar" :  $sidebar, "content" : $content }
     return st:fill-html-template( $template, $map )//html 
   )
   else (

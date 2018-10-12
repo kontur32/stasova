@@ -1,5 +1,5 @@
 module namespace st = 'http://www.iro37.ru/trac/funct';
-import module  namespace xlsx = 'http://iro37.ru.ru/xq/modules/xlsx' at 'module-xlsx.xqm';
+
 import module namespace functx = "http://www.functx.com";
  
 declare 
@@ -55,15 +55,7 @@ return
    parse-xml ("<node>" || functx:replace-multi ($template, $changeFrom, $changeTo) || "</node>")
 };
 
-declare function st:count-age($birthDay)
+declare function st:count-age( $birthDay as xs:dateTime ) 
 {
-  ( current-date() - $birthDay) div xs:dayTimeDuration('P1D') idiv 365.242199 * xs:yearMonthDuration('P1Y')
-};
-
-
-(: -------- внутренние сервисные функции ------------------ :)
- declare function st:get-binary ($res_path) {
-  if ( try {file:exists($res_path)} catch * {} ) 
-  then ( try {file:read-binary($res_path)} catch * {'локальный файл ' || $res_path || ' не доступен'}) 
-  else ( try {fetch:binary( escape-html-uri($res_path))} catch * {'ресурс ' || $res_path  || ' с ошибкой'} )
+  ( current-date() - $birthDay ) div xs:dayTimeDuration('P1D') idiv 365.242199 * xs:yearMonthDuration('P1Y')
 };

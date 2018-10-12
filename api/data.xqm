@@ -7,17 +7,21 @@ declare variable $data:domainData :=
       db:open( $data:dbName )/domains/domain[ @id = $domain ]/data
     };
 
+declare variable $data:domainSessions := 
+    function ( $domain as xs:string ) as element( sessions ) {
+      db:open( $data:dbName )/domains/domain[ @id = $domain ]/sessions
+    };
+
 declare variable $data:models := 
     function ( $domain as xs:string ) as element( table )* {
       $data:domainData( $domain )/owner/table[ @type = "Model" ]
     };
 
 declare variable $data:model := 
-    function (
-      $domain as xs:string, 
-      $modelID as xs:string
-    ) as element( table ) {
-      $data:models( $domain )[ @id = $modelID ]
+    function ( $domain as xs:string, $modelID as xs:string) as element( table ) {
+      let $result := $data:models( $domain )[ @aboutType = $modelID ]
+      return 
+        if ( $result ) then ( $result ) else ( <table/> )
     };
     
 declare variable $data:ownerData := 

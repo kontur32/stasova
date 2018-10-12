@@ -1,8 +1,8 @@
 module namespace input = "http://www.iro37.ru/stasova/api/input";
 
-import  module namespace conf = 'http://iro37.ru/xq/modules/config' at "../config.xqm";
-import module namespace auth = 'http://iro37.ru/xq/modules/auth' at '../permissions/auth.xqm';
-import module namespace parse = "http://www.iro37.ru/stasova/TRCI-parse" at "../TRCI-parse.xqm";
+import  module namespace conf = 'http://iro37.ru/xq/modules/config' at "../../config.xqm";
+import module namespace auth = 'http://iro37.ru/xq/modules/auth' at '../../permissions/auth.xqm';
+import module namespace parse = "http://www.iro37.ru/stasova/TRCI-parse" at "../../TRCI-parse.xqm";
 
 declare
   %updating
