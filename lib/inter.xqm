@@ -31,26 +31,25 @@ declare
 function inter:form-update ( $callback, $action, $token, $domain )
 {
   <form action=  "{ '/trac/api/input/' || $action }" method="POST" enctype="multipart/form-data">
-                  <input type="file" name="file" multiple="multiple"/>
-                  <input type="text" name="callback" value="{ $callback }" hidden="true" />
-                  <input type="text" name="domain" value="{ $domain }" hidden="true"/>
-                  <input type="text" name="token" value="{ $token }" hidden="true"/>
-                  <br/>
-                  <input type="submit" value="Обновить/загрузить данные"/>
-              </form>
+      <input type="file" name="file" multiple="multiple"/>
+      <input type="text" name="callback" value="{ $callback }" hidden="true" />
+      <input type="text" name="domain" value="{ $domain }" hidden="true"/>
+      <input type="text" name="token" value="{ $token }" hidden="true"/>
+      <input class="btn btn-info" type="submit" value="Обновить/загрузить данные"/>
+  </form>
 };
 
 declare
 function inter:form-update ( $callback, $action, $token, $domain, $group )
 {
   <form action=  "{ '/trac/api/input/' || $action }" method="POST" enctype="multipart/form-data">
-                  <input type="file" name="file" multiple="multiple"/>
+                  <input type="file" role = "button" name="file" multiple="multiple"/>
                   <input type="text" name="group" value="{ $group }" hidden="true" />
                   <input type="text" name="callback" value="{ $callback }" hidden="true" />
                   <input type="text" name="domain" value="{ $domain }" hidden="true"/>
                   <input type="text" name="token" value="{ $token }" hidden="true"/>
                   <br/>
-                  <input type="submit" value="Обновить/загрузить данные"/>
+                  <input class="btn btn-info" type="submit" value="Обновить/загрузить данные"/>
               </form>
 };
 

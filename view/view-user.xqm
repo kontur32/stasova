@@ -57,10 +57,18 @@ function view:user-section (  $domain, $section, $group,  $item, $pagination, $m
         <hr/>
         <ul>
         {
-          for $c in $conf:domain("ood")/data/owner/table[ @type="Data" and @aboutType= $section ]/row
+          for $c in $conf:domain( $domain )/data/owner/table[ @type="Data" and @aboutType= $section ]/row
+          let $cl := 
+            if ( $c/@id/data() = $group ) 
+            then ("marked") 
+            else ( "" )
           return
-            <li><a href="{'?group=' || $c/cell[@id='id']/text()}">{ $c/cell[@id="label"]/text() }</a></li>
+            <li class="{$cl}"><a href="{'?group=' || $c/cell[@id='id']/text()}">{ $c/cell[@id="label"]/text() }</a></li>
         }</ul>
+        <hr/>
+        <p>шаблон анкеты слушателя
+            <a href="http://iro37.ru/res/tpl/xlsx/%d0%90%d0%9d%d0%9a%d0%95%d0%a2%d0%90-%d1%81%d0%bb%d1%83%d1%88%d0%b0%d1%82%d0%b5%d0%bb%d0%b8%d0%9a%d0%9f%d0%9a-14102018.xlsx">(скачать)</a>
+        </p>
       </div>    
 
     let $content :=
@@ -123,29 +131,38 @@ declare function view:build-reports-list ( $domain, $group, $token ) {
             }
             catch * { }
            for $r in $reports/table/row
+           let $viewUrl := 
+               web:create-url (  '/trac/Report/' || $domain || '/' || $r/cell[ @id = 'id' ], 
+                map {
+                  'type' : 'student',
+                  'group' : $group,
+                  'token' : $token
+                } )
+            let $downloadUrl :=
+              web:create-url (  '/trac/api/download/Report/' || $domain || '/' || $r/cell[ @id = 'id' ] , 
+                  map {
+                    'class' : 'student',
+                    'container' : $group,
+                    'token' : $token
+                  })
+            let $fileName := 
+                $r/cell[ @id = 'label' ]|| '-' || $group || '.docx'
            return
             <tr>
               <td>
                 { $r/cell[ @id = 'label' ] }<br/>
                 <i><a href="{ $r/cell[ @id = 'template' ] }">(шаблон)</a></i>
               </td>
-              <td><a target="_self" href="{
-              web:create-url (  '/trac/Report/' || $domain || '/' || $r/cell[ @id = 'id' ], 
-                map {
-                  'type' : 'student',
-                  'group' : $group,
-                  'token' : $token
-                })
-              }">просмотреть</a></td>
               <td>
-                <a target="_blank" download="{ $r/cell[ @id = 'label' ]|| '-' || $group || '.docx'}"  href="{
-                web:create-url (  '/trac/api/download/Report/' || $domain || '/' || $r/cell[ @id = 'id' ] , 
-                  map {
-                    'class' : 'student',
-                    'container' : $group,
-                    'token' : $token
-                  })
-                }">скачать</a>                
+                <a class="btn btn-info" role="button" target="_self" 
+                      href="{ $viewUrl }">просмотреть</a>
+              </td>
+              <td>
+                <a 
+                  class="btn btn-info" 
+                  role="button" 
+                  target="_blank" download="{ $fileName }"  
+                  href="{ $downloadUrl }">скачать</a>                
               </td>
             </tr>
           }
