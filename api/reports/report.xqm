@@ -1,45 +1,28 @@
 module namespace report = "http://www.iro37.ru/trac/api/report";
 
-import module namespace inter = 'http://www.iro37.ru/trac/lib/interface' at "../../lib/inter.xqm";
-import module namespace st = 'http://www.iro37.ru/trac/funct' at "../../functions.xqm";
-
 import module namespace docx = "docx.iroio.ru" at '../../../iro/module-docx.xqm';
 
-declare variable $report:userData := function ( $domain, $token, $type, $query ) {
-  try {
+declare
+  %rest:path("/trac/api/output/Report/{$domain}/{$report}")
+  %rest:method('GET')
+  %rest:query-param( "type", "{$type}" )
+  %rest:query-param( "group", "{$group}" )     
+  %rest:query-param( "token", "{$token}" )
+  %output:method ( "xml" )
+function report:report ( $report, $domain, $type, $group, $token )
+{
+    let $data := 
+      try {
         fetch:xml (
           web:create-url ( "http://localhost:8984/trac/api/Data/user/" || $domain || "/"|| $type,
-            map { "q" :  $query,
+            map { "q" :  "course:" || $group,
                   "ACCESS_KEY" : $token
             }  )
         )
       }
       catch * {
       }
-};
-
-declare variable $report:openData := function ( $domain, $type, $query ) {
-  try {
-        fetch:xml (
-          web:create-url ( "http://localhost:8984/trac/api/Data/public/" || $domain || "/"|| $type,
-            map { "q" :  $query }  )
-        )
-      }
-      catch * {
-      }
-};
-
-declare
-  %rest:path("/trac/api/output/Report/{$domain}/{$report}")
-  %rest:method('GET')
-  %rest:query-param( "class", "{$class}" )
-  %rest:query-param( "container", "{$container}" )     
-  %rest:query-param( "token", "{$token}" )
-  %output:method( "xhtml" )
-
-function report:report ( $report, $domain, $class, $container, $token )
-{
-    let $data := $report:userData ( $domain, $token, $class, "course:" || $container)
+      
     let $content := 
         switch ( $report )
         case "1" return report:зачисление ( $data )
@@ -49,20 +32,7 @@ function report:report ( $report, $domain, $class, $container, $token )
         case "5" return report:регистрационная ( $data )
         case "6" return report:зачисление ( $data )
         default return <table/>      
-      
-      let $sidebar := 
-        <div>
-          <h2>Приказ о зачислении</h2>
-          <p>
-            Слушателей курсов 
-            <b>{
-                
-            } </b></p>
-        </div>
-          
-      let $template := serialize( doc("../../src/main-tpl.html") )
-      let $map := map{ "nav": "", "nav-login": "", "sidebar" :  $sidebar, "content" : $content }
-      return st:fill-html-template( $template, $map )//html 
+    return $content
 };
 
  declare
@@ -71,45 +41,36 @@ function report:report ( $report, $domain, $class, $container, $token )
   %rest:query-param( "class", "{$class}" )
   %rest:query-param( "container", "{$container}" )     
   %rest:query-param( "token", "{$token}" )
-
-function report:зачисление-загрузка ( $domain, $report, $class, $container, $token )
+function report:выгрузка ( $domain, $report, $class, $container, $token )
 {
-      let $data := $report:userData ( $domain, $token, $class, "course:" || $container)
-      let $content :=
-      switch ( $report )
-        case "1" return 
-            map{ "data" : report:зачисление ( $data ),
-                 "tpl" : "http://iro37.ru/res/tpl/%d0%bf%d1%80%d0%b8%d0%ba%d0%b0%d0%b7_%d0%b7%d0%b0%d1%87%d0%b8%d1%81%d0%bb%d0%b5%d0%bd%d0%b8%d0%b5.docx" }
-        case "2" return 
-            map{ "data" : report:дистант ( $data ),
-                 "tpl" : "http://iro37.ru/res/tpl/%d0%a1%d0%b2%d0%b5%d0%b4%d0%b5%d0%bd%d0%b8%d1%8f%20%d0%b4%d0%bb%d1%8f%20%d0%b4%d0%b8%d1%81%d1%82%d0%b0%d0%bd%d1%82%d0%b0.docx" }
-        case "3" return 
-            map{ "data" : report:бухгалтерия ( $data ),
-                 "tpl" : "http://iro37.ru/res/tpl/%d0%91%d0%bb%d0%b0%d0%bd%d0%ba%202%20%d0%b4%d0%bb%d1%8f%20%d0%b1%d1%83%d1%85%d0%b3%d0%b0%d0%bb%d1%82%d0%b5%d1%80%d0%b8%d0%b8.docx" }
-        case "4" return 
-            map{ "data" : report:зачетная ( $data ),
-                 "tpl" : "http://iro37.ru/res/tpl/%d0%97%d0%b0%d1%87%d0%b5%d1%82%d0%bd%d0%b0%d1%8f%20%d0%b2%d0%b5%d0%b4%d0%be%d0%bc%d0%be%d1%81%d1%82%d1%8c.docx" }
-        case "5" return 
-            map{ "data" : report:регистрационная ( $data ),
-                 "tpl" : "http://iro37.ru/res/tpl/%d0%a0%d0%b5%d0%b3%d0%b8%d1%81%d1%82%d1%80%d0%b0%d1%86%d0%b8%d0%be%d0%bd%d0%bd%d1%8b%d0%b9_%d0%bb%d0%b8%d1%81%d1%82_%d0%9a%d0%9f%d0%9a.docx" }
-        case "6" return 
-            map{ "data" : report:зачисление ( $data ),
-                 "tpl" : "http://iro37.ru/res/tpl/%d0%9f%d1%80%d0%b8%d0%ba%d0%b0%d0%b7%20%d0%be%d0%b1%20%d0%be%d0%ba%d0%be%d0%bd%d1%87%d0%b0%d0%bd%d0%b8%d0%b8.docx" }
-        
-        default return <table/> 
+  let $content := report:report ( $report, $domain, $class, $container, $token )
 
-      let $template := fetch:binary(  $content?tpl )
-      let $doc := parse-xml ( archive:extract-text( $template,  'word/document.xml' ) ) 
+  let $tpl := 
+      try {
+        fetch:xml ( 
+          "http://localhost:8984/trac/api/Data/public/" || $domain || "/report" )/table/row [@id= $report ]/cell[@id="template"]/text()
+      }
+      catch * {}
       
-      let $rows := for $row in $content?data /child::*[ position()>1 ]
-                    return docx:row($row)
-      
-      let $entry := docx:table-insert-rows ($doc, $rows)
-      let $updated := archive:update ($template, 'word/document.xml', $entry)
-      
-      return $updated
+  let $template := 
+    try {
+      fetch:binary( iri-to-uri ( $tpl ) )
+    }
+    catch *{}
+  
+  let $doc := parse-xml ( archive:extract-text( $template,  'word/document.xml' ) ) 
+  
+  let $rows := for $row in $content /child::*[ position()>1 ]
+                return docx:row($row)
+  
+  let $entry := docx:table-insert-rows ($doc, $rows)
+  let $updated := archive:update ($template, 'word/document.xml', $entry)
+  
+  return $updated
+
 };
 
+(: --- собтственно отчеты ----------------------------------------------------:)
 declare %private function report:зачисление ( $data ) {
      <table class="table table-striped">
         <tr>
@@ -120,7 +81,16 @@ declare %private function report:зачисление ( $data ) {
         {
           for $r in $data/table/row
           let $inn := $r/cell[@id="inn"]/text() 
-          let $school := $report:openData ( "ood", "school", "id:" || $inn )/table/row[1]
+          
+          let $school := 
+            try {
+              fetch:xml (
+                web:create-url ( "http://localhost:8984/trac/api/Data/public/" || "ood" || "/"|| "school",
+                  map { "q" :  "id:" || $inn }  )
+              )/table/row[1]
+            }
+            catch * {
+            }
           order by $r/cell[@id="familyName"]
           count $n
           return
@@ -161,7 +131,15 @@ declare %private function report:дистант ( $data ) {
         {
         for $r in $data/table/row
           let $inn := $r/cell[@id="inn"]/text() 
-          let $school := $report:openData ( "ood", "school", "id:" || $inn )/table/row[1]
+          let $school := 
+            try {
+              fetch:xml (
+                web:create-url ( "http://localhost:8984/trac/api/Data/public/" || "ood" || "/"|| "school",
+                  map { "q" :  "id:" || $inn }  )
+              )/table/row[1]
+            }
+            catch * {
+            }
           order by $r/cell[@id="familyName"]
           count $n
         return
@@ -199,7 +177,15 @@ declare %private function report:бухгалтерия ( $data ) {
       {
         for $r in $data/table/row
           let $inn := $r/cell[@id="inn"]/text() 
-          let $school := $report:openData ( "ood", "school", "id:" || $inn )/table/row[1]
+          let $school := 
+            try {
+              fetch:xml (
+                web:create-url ( "http://localhost:8984/trac/api/Data/public/" || "ood" || "/"|| "school",
+                  map { "q" :  "id:" || $inn }  )
+              )/table/row[1]
+            }
+            catch * {
+            }
           order by $r/cell[@id="familyName"]
           count $n
         return
@@ -267,9 +253,17 @@ declare %private function report:регистрационная ( $data ) {
         </tr>
         {
           for $r in $data/table/row
-            let $inn := $r/cell[@id="inn"]/text() 
-            let $school := $report:openData ( "ood", "school", "id:" || $inn )/table/row[1]
-            order by $r/cell[@id="familyName"]
+            let $inn := $r/cell[ @id="inn" ]/text() 
+            let $school := 
+              try {
+                fetch:xml (
+                  web:create-url ( "http://localhost:8984/trac/api/Data/public/" || "ood" || "/"|| "school",
+                    map { "q" :  "id:" || $inn }  )
+                )/table/row[1]
+              }
+              catch * {
+              }
+            order by $r/cell[ @id="familyName" ]
             count $n
           return
             <tr>

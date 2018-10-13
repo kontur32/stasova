@@ -23,7 +23,7 @@ function input:owner (  $file, $callback, $domain, $token )
       
       let $newData := parse:data ( $rawData, $model, $conf:url ( $domain, "processing/parse" ) || "/" )
              
-      let $oldData := $data:ownerData ( $domain )[ @type= $rawData/@type and @aboutType= $rawData/@aboutType ]
+      let $oldData := $data:domainData ( $domain )/owner/table [@type = $rawData/@type and @aboutType=$rawData/@aboutType ]
       
       return
         if ( $oldData )

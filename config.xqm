@@ -37,7 +37,7 @@ declare variable $conf:getUser :=
       $conf:domain ( $domain )/data/owner/table[@type="Data" and @aboutType="users"]/row[cell[@id="id"] = $name]
     };
 
-declare variable $conf:session-duration := xs:dayTimeDuration('PT600S');
+declare variable $conf:session-duration := xs:dayTimeDuration('PT3600S');
 declare variable $conf:base := 'trac';
 declare variable $conf:rootUrl := "http://localhost:8984" ;
 declare variable $conf:parserUrl := "http://localhost:8984/trac/api/parser/" ;
