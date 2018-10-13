@@ -17,7 +17,7 @@ function view:owner-main( $domain ) {
     let $nav := inter:build-menu-items ($nav-items-data)
     let $userID := auth:get-session-user ( $domain, Session:get('token') )
     let $nav-login := inter:build-menu-login ( $conf:user ( $domain, $userID ) )
-    
+       
     let $content := 
         <p>Добро пожаловать на страницу руководителя КПК <b>"{$conf:domain ( $domain )/@label/data()}"</b></p>
     let $template := serialize( doc("../src/main-tpl.html") )
@@ -45,6 +45,10 @@ function view:user-section (  $domain, $section, $group,  $item, $pagination, $m
     let $nav := inter:build-menu-items ($nav-items-data)
     let $userID := auth:get-session-user ( $domain, Session:get('token') )
     let $nav-login := inter:build-menu-login ( $conf:user ( $domain, $userID ) )
+   
+    let $group := if ( $group ) then ( $group ) else (
+      $conf:domain( $domain )/data/owner/table[ @type="Data" and @aboutType= "course" ]/row[1]/@id/data()
+    )
    
     let $callback := string-join (( "/trac", "user" , $domain, $section), "/")
     let $action :=  "user/student"
