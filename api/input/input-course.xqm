@@ -7,7 +7,7 @@ import module namespace parse = "http://www.iro37.ru/stasova/TRCI-parse" at "../
 declare
   %updating
   %rest:path("/trac/api/input/user/student")
-  %rest:method("post")
+  %rest:method("POST")
   %rest:form-param("file", "{$file}")
   %rest:form-param("callback", "{$callback}")
   %rest:form-param("domain", "{$domain}")
@@ -18,11 +18,10 @@ function input:user (  $file, $callback, $domain, $token, $group )
   if ( auth:get-session-scope ( $domain, $token ) = "user" and $conf:userData ( $domain, auth:get-session-user ( $domain, $token ) ))
   then (
       let $userID := auth:get-session-user ( $domain, $token )
-      let $rawData := parse:from-xlsx( xs:base64Binary($file(map:keys($file)[1] )) )
-      let $model := $conf:models ( $domain ) [ @id = $rawData/@model ]
-      let $model := if ( $model ) then ( $model ) else ( <table/> )
-      let $newData := parse:data ( $rawData, $model, $conf:parserUrl ) update replace node ./@id with attribute { "id" } { $group }
-      let $oldData := $conf:userData ( $domain, $userID )/table [ @aboutType= $rawData/@aboutType and @id=$group ]
+          
+      let $newData := input:newData ( $file, $domain, $group )
+      
+      let $oldData := $conf:userData ( $domain, $userID )/table [ @aboutType= "student"  and @id=$group ]
       return
         if ( $oldData )
         then (
@@ -36,4 +35,31 @@ function input:user (  $file, $callback, $domain, $token, $group )
   else (
     db:output(web:redirect($callback, map{"message":"Ошибка авторизации"}))
   )
+};
+
+declare
+  %private
+function input:newData ( $file, $domain, $group ) as element(table) {
+   let $newRows := 
+        for $f in map:keys( $file )
+        let $rawData := parse:from-xlsx( 
+            xs:base64Binary( $file ( $f ) ) 
+          )
+        let $model := $conf:models ( $domain ) [ @id = $rawData/@model ]
+        let $model := if ( $model ) then ( $model ) else ( <table/> )
+        return
+          parse:data ( $rawData, $model, $conf:parserUrl )/row 
+            update replace value of node cell[@id="course"] with $group
+     
+      let $newData :=
+        element { "table" } {
+          attribute { "type" } { "Data" },
+          attribute { "id" } { $group },
+          attribute { "aboutType" } { "student" },
+          attribute { "label" } { "Слушатели курсов" },
+          attribute { "updated" } { current-dateTime () },
+          $newRows 
+        }
+      return
+        $newData
 };

@@ -49,7 +49,7 @@ function view:user-section (  $domain, $section, $group,  $item, $pagination, $m
     let $callback := string-join (( "/trac", "user" , $domain, $section), "/")
     let $action :=  "user/student"
     let $token := Session:get( 'token' )
-    let $inputForm := inter:form-update ( $callback , $action, $token, $domain, $group )
+    let $inputForm := inter:form-update ( $callback , $action, $token, $domain, $group )   
     
     let $sidebar :=
       <div>
