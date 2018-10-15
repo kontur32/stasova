@@ -42,3 +42,28 @@ function parse:hash ( $queryString as xs:string ) as xs:string {
  then ( string( hash:hash( $queryString, 'sha-256' ) ) )
  else ( "" )
 };
+
+declare 
+  %public
+  %rest:path("/trac/api/processing/parse/variative")
+  %rest:method('GET')
+  %rest:query-param("q", "{$queryString}" )
+function parse:variative ( $queryString as xs:string ) as element ( table ) {
+  if ( normalize-space ( $queryString ) )
+  then ( 
+  let $expr := tokenize ( $queryString, ", "  )
+  let $result := 
+    element { "row" } {
+      attribute { "id"} { "variative" },
+      for $c in $expr
+      return 
+        element {"cell"} {
+          attribute {"id"} {"expr"},
+          $c
+        }
+    }
+  return 
+    <table> { $result } </table>
+  )
+  else ()
+};

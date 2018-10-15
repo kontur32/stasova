@@ -29,7 +29,7 @@ function public:open-data ( $domain, $type, $q, $method )
             }
       }
       return 
-      if ( $method = "xlsx")
+      if ( $method = "xlsx" )
       then (
         public:trciCompact ( $data )
       )
@@ -39,13 +39,14 @@ function public:open-data ( $domain, $type, $q, $method )
 declare 
   %private 
 function public:trciCompact ( $data ) {
-    element {"table"} {
+    element { "table" } {
       for $r in $data
       return 
-        element {"row"} {
+        element { "row" } {
           for $c in $r/cell
           return 
-            attribute {$c/@id/data()} {$c/text()}
+            attribute { $c/@id/data() } { 
+              if ($c/table) then ( normalize-space ($c/data() ) ) else ( web:decode-url( $c/text() )  ) }
         }
     }    
 };
