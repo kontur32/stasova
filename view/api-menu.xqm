@@ -41,6 +41,11 @@ function int:nav-user1 ( $scope, $domain )
     </table>
     <table id="user" domain="{$domain}">
       <row>
+        <cell id="id">domain</cell>
+        <cell id="label">Домен</cell>
+        <cell id="href">user/{$domain}</cell>
+      </row>
+      <row>
         <cell id="id">course</cell>
         <cell id="label">Курсы</cell>
         <cell id="href">user/{$domain}/course</cell>

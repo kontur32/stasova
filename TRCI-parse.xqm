@@ -38,7 +38,7 @@ function parse:data (
     let $rowID := if ( $rowID ) then ( $rowID ) else ( $r/cell[ @label="id"]/text() )
     return 
       element { "row" } {
-        attribute { "id" } { $rowID },
+        attribute { "id" } { iri-to-uri ( $rowID ) },
         attribute { "type" } { $data/@aboutType },
         
         for $c in $r/cell
@@ -46,7 +46,7 @@ function parse:data (
         let $cellId := 
           if ($modelCell/cell[@id="id"]/text())
           then ( $modelCell/cell[@id="id"]/text() )
-          else ( encode-for-uri ($c/@label/data()) )
+          else ( iri-to-uri ($c/@label/data()) )
         
         let $cellData := 
            if ( $modelCell/cell[@id="parser"]/text() )

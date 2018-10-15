@@ -40,14 +40,16 @@ function view:user-section (  $domain, $section, $group,  $item, $pagination, $m
 
   if ( auth:get-session-scope ( $domain, Session:get('token') ) =  "user" )
   then (
-   
-    let $nav-items-data := fetch:xml ( web:create-url($conf:menuUrl( "user" ), map{"domain":$domain}))/table
-    let $nav := inter:build-menu-items ($nav-items-data)
+    
     let $userID := auth:get-session-user ( $domain, Session:get('token') )
+    let $userLabel := $conf:domain( $domain )/data/owner/table[ @type="Data" and @aboutType= "users" ]/row[ @id= $userID ]/cell[ @id="label" ]/text()
+    
+    let $nav-items-data := fetch:xml ( web:create-url( $conf:menuUrl( "user" ), map{ "domain":$domain } ) )/table
+    let $nav := inter:build-menu-items ( $nav-items-data )
     let $nav-login := inter:build-menu-login ( $conf:user ( $domain, $userID ) )
    
     let $group := if ( $group ) then ( $group ) else (
-      $conf:domain( $domain )/data/owner/table[ @type="Data" and @aboutType= "course" ]/row[1]/@id/data()
+      $conf:domain( $domain )/data/owner/table[ @type ="Data" and @aboutType = "course" ]/row[1]/@id/data()
     )
    
     let $callback := string-join (( "/trac", "user" , $domain, $section), "/")
@@ -61,7 +63,7 @@ function view:user-section (  $domain, $section, $group,  $item, $pagination, $m
         <hr/>
         <ul>
         {
-          for $c in $conf:domain( $domain )/data/owner/table[ @type="Data" and @aboutType= $section ]/row
+          for $c in $conf:domain( $domain )/data/owner/table[ @type="Data" and @aboutType= $section ]/row [ cell[ @id="person" ] = $userLabel ]
           let $cl := 
             if ( $c/@id/data() = $group ) 
             then ("marked") 
@@ -96,7 +98,7 @@ function view:user-section (  $domain, $section, $group,  $item, $pagination, $m
              let $link-label := string-join ( $s/cell[@id=("familyName", "givenName", "secondName")]/text() , " ")
              return 
               <li>
-                <a target="_blank"  href= "{ $href }"  >
+                <a target="_self"  href= "{ $href }"  >
                   { $link-label }
                  </a>
               </li>
