@@ -119,7 +119,7 @@ function report:books ( ) {
       
   let $content := st:TRCI-to-html( <table>{ $result }</table> )
   
-  let $downloadUrl := "http://localhost:8984/trac/api/download/Report/kin18-dev/booksInstock/download"
+  let $downloadUrl := "/trac/api/download/Report/kin18-dev/booksInstock/download"
   
   let $sidebar :=
       <div>
