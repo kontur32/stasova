@@ -70,37 +70,6 @@ function report:выгрузка ( $domain, $report, $class, $container, $token 
 
 };
 
-declare
-  %rest:path("/trac/api/output/Report/kin18/school-subject")
-  %rest:method('GET')
-  %output:method ( "xml" )
-function report:school-subject (  )
-{
-    let $data := 
-      try {
-        fetch:xml (
-          web:create-url ( "http://localhost:8984/trac/api/Data/public/kin18/curriculum-5-8",
-            map { }  )
-        )
-      }
-      catch * {
-      }
-      
-   let $subj := 
-      for $a in  $data/table/row
-      where $a [cell[@id="school_class_" || "5"]]/text()
-      return 
-        if( $a/cell [@id = "variative"]/table) 
-        then (
-          for $i in $a/cell [ @id = "variative" ]/table/row
-          return <cell id="subject" parallel="5">{ $i/@id/data() }</cell>
-        )
-        else (
-          <cell id="subject" parallel="5">{ $a/cell[@id="label"]/text() }</cell>
-        )
-   
-   return <table><row>{$subj}</row></table>
-};
 
 (: --- собтственно отчеты ----------------------------------------------------:)
 declare %private function report:зачисление ( $data ) {
