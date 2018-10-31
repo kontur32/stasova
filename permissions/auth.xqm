@@ -67,7 +67,7 @@ declare
   function  
     auth:validate-session ( $domain, $token )
   {
-    let $session := $conf:db/domains/domain[@id = $domain]/sessions/session[@token/data() = $token]
+    let $session := $conf:db/domains/domain[@id = $domain]/sessions/session[ @token/data() = $token ]
     where $session
     return   
       $session/@token/data() = $token and ( xs:dateTime ($session/@expires/data() ) - current-dateTime() ) div xs:dayTimeDuration('PT1S') > 0 

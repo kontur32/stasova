@@ -50,10 +50,15 @@ function pm:check-user() {
   let $user := Session:get('id')
   let $new-token := auth:build-token ( )
   return 
-    if ( auth:validate-session ( $domain, $token ) and $conf:getUser ( $domain, $user ) )
+    if ( auth:validate-session ( $domain, $token ) )
     then ( 
-      Session:set('token', $new-token ), 
-      auth:set-session($domain, $user, Session:get("scope"), $new-token ) 
+      if ( not ( $conf:userData ( $domain, $user ) ) and  $conf:getUser( $domain, $user )/cell[@id="status"]/text() = "active")
+      then (
+        insert node <user id="{$user}"/> into $conf:domain ( $domain )/data
+      )
+      else ( ),
+      Session:set( 'token', $new-token ),
+      auth:set-session( $domain, $user, Session:get("scope"), $new-token ) 
     )
     else (
        db:output (web:redirect('/trac')  )

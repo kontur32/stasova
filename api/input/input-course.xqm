@@ -26,6 +26,7 @@ function input:user (  $file, $callback, $domain, $token, $group )
           replace node $oldData with $newData
         )
         else (
+          
           insert node $newData into $conf:userData ( $domain, $userID )
         ),  
       db:output( web:redirect( $callback , map { "group" : $group,"message" : "Файл загружен" } ) ) 

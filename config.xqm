@@ -20,8 +20,8 @@ declare variable $conf:user :=
        };       
 
 declare variable $conf:userData :=
-       function ($domain, $userID) { 
-        $conf:domain( $domain )/data/user[ @id = $userID ]
+       function ( $domain, $userID ) {
+           $conf:domain( $domain )/data/user[ @id = $userID ] 
        };
 
 declare variable $conf:ownerData :=

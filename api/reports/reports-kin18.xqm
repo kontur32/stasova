@@ -17,7 +17,6 @@ function report:school-subject ( $parallel )
       catch * {
       }
    let $rows :=    
-       
           for $a in  $data
           return 
             if ( $a/cell [ @id = "variative" ]/table ) 
@@ -33,8 +32,6 @@ function report:school-subject ( $parallel )
                   <cell id="label">{ $a/cell[@id="label"]/text() }</cell>
               </row>
             )
-      
-   
    return <table>{ $rows }</table>
 };
 
