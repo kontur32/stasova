@@ -6,38 +6,38 @@
         <meta name="viewport" content="width=device-width, initial-scale=1"/>
     </head>
     <body>
-	
-		<nav class="navbar navbar-expand bg-dark navbar-dark">
-			<div class="container-fluid">
-				<div class="navbar-head">
-					<a href="/trac" class="navbar-brand"><img src="http://iro37.ru/res/trac-src/img/logo.jpg" style="max-height: 70px;"/>Инфосреда ЭВМ</a>
-				</div>
-        {{nav}}
-        {{nav-login}}
-			</div>
-		</nav>
 
-        <div class="container" >
-			<div class="row" >
-				
-				<div class="col-md-3 border-right" >
-					{{sidebar}}
-				</div>
-				
-				<div class="col-md-9" >
-					{{content}}
-				</div>
-				
-			</div>
+      <div class="container-fluid" id="main">
+        <nav class="navbar navbar-expand bg-dark navbar-dark">
+          <div class="container-fluid">
+            <div class="navbar-head">
+              <a href="/trac" class="navbar-brand"><img src="http://iro37.ru/res/trac-src/img/logo.jpg" style="max-height: 70px;"/>Инфосреда ЭВМ</a>
+            </div>
+            {{nav}}
+            {{nav-login}}
+          </div>
+        </nav>
+        
+        <div class="container-fluid" id="content">
+          <div class="row" >
+            <div class="col-md-3 border-right" >
+              {{sidebar}}
+            </div>
+            <div class="col-md-9" >
+              {{content}}
+            </div>
+          </div>
         </div>
-		
-		<div id="footer">
-		  <div class="container-fluid bg-dark">
-			<p class="text-muted">(c) artel, (c) artmotor <br/>Инфосреда для институтов повышения квалификации учителей <span><a href="/trac">"Электронный вассал методиста"</a></span> (ЭВМ) на основе технологии <span><a target="_blank" href="http://iro37.ru/xqwiki/TRaC">TRaC</a></span></p>
-		  </div>
-		</div>
-		
+
+        <div id="footer">
+          <div class="container-fluid bg-dark">
+            <p class="text-muted">(c) artel, (c) artmotor <br/>Инфосреда для институтов повышения квалификации учителей <span><a href="/trac">"Электронный вассал методиста"</a></span> (ЭВМ) на основе технологии <span><a target="_blank" href="http://iro37.ru/xqwiki/TRaC">TRaC</a></span></p>
+          </div>
+        </div>
+       </div>
     </body>
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css"/>
+  
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css"/>
   <link rel="stylesheet" href="http://iro37.ru/res/trac-src/trac-web.css"/>
+
 </html>

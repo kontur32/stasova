@@ -13,7 +13,7 @@ function int:nav-user1 ( $scope, $domain )
     <table id = "main">
       <row>
         <cell id="id">domains</cell>
-        <cell id="label">Домены</cell>
+        <cell id="label">Организации</cell>
         <cell id="href">domains</cell>
       </row>
       <row>
@@ -42,13 +42,23 @@ function int:nav-user1 ( $scope, $domain )
     <table id="user" domain="{$domain}">
       <row>
         <cell id="id">domain</cell>
-        <cell id="label">Домен</cell>
+        <cell id="label">Главная</cell>
         <cell id="href">user/{$domain}</cell>
       </row>
       <row>
         <cell id="id">course</cell>
         <cell id="label">Курсы</cell>
         <cell id="href">user/{$domain}/course</cell>
+      </row>
+      <row>
+        <cell id="id">prof</cell>
+        <cell id="label">Профпереподготовка</cell>
+        <cell id="href">user/{$domain}/prof</cell>
+      </row>
+      <row>
+        <cell id="id">probl</cell>
+        <cell id="label">Семинары</cell>
+        <cell id="href">user/{$domain}/probl</cell>
       </row>
    </table>
   </menu>

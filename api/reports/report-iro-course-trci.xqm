@@ -32,7 +32,7 @@ function report:report ( $report, $domain, $type, $group, $token )
           let $school := 
             try {
               fetch:xml (
-                web:create-url ( "http://localhost:8984/trac/api/Data/public/" || "ood" || "/"|| "school",
+                web:create-url ( "http://localhost:8984/trac/api/Data/public/" || $domain || "/"|| "school",
                   map { "q" :  "id:" || $inn }  )
               )/table/row[1]
             }

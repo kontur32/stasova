@@ -30,17 +30,17 @@ function view:owner-main( $scope, $domain ) {
 };
 
 declare
-  %rest:path("/trac/{$scope}/{$domain}/{$section}")
+  %rest:path("/trac/owner/{$domain}/{$section}")
   %rest:query-param("group", "{$group}")  
   %rest:query-param("item", "{$item}")
   %rest:query-param("pagination", "{$pagination}")
   %rest:query-param("message", "{$message}")
   %output:method ('xhtml')
-function view:owner-section ( $scope, $domain, $section, $group,  $item, $pagination, $message ) {
+function view:owner-section ( $domain, $section, $group,  $item, $pagination, $message ) {
 
-  if ( auth:get-session-scope ( $domain, Session:get('token') ) =  $scope )
+  if ( auth:get-session-scope ( $domain, Session:get('token') ) =  "owner" )
   then (
-    
+    let $scope := "owner"
     let $data :=  $conf:domain ( $domain )/data/child::*[ name() = $scope ]/table[ @type= $section ]
     let $group := if ( $group ) then ( $group ) else ( $data[ 1 ]/@aboutType )
     let $models := $conf:domain ( $domain )/data/owner/table[ @type = "Model" and @aboutType = $data/@aboutType ]

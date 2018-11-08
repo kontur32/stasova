@@ -43,7 +43,7 @@ declare variable $conf:rootUrl := "http://localhost:8984" ;
 declare variable $conf:parserUrl := "http://localhost:8984/trac/api/parser/" ;
 declare variable $conf:menuUrl := 
       function ($level) {
-        $conf:rootUrl || "/" || $conf:base || "/api/interface/menu/" || $level
+        "http://localhost:8984/trac/api/interface/menu/" || $level
       };
 declare variable $conf:sectionUrl := 
       function ($domain, $userType) {

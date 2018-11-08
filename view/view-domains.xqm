@@ -18,7 +18,7 @@ function view:domain( $domain ) {
     if ( $conf:db/domains/domain[@id = $domain ])
     then (  
       <div>
-        <p>Информационная среда (домен):</p>
+        <p>Информационная среда организации:</p>
         <h2>{$conf:db/domains/domain[@id = $domain ]/@label/data()}</h2>
         <br/>
         <p>Введите логин и пароль</p>
@@ -36,12 +36,12 @@ function view:domain( $domain ) {
      )
      else (
        <div>
-         <p>Домент <i><b>{$domain}</b></i> не зарегистрирован</p>
+         <p>Организация <i><b>{$domain}</b></i> не зарегистрирована</p>
        </div>
      )
   let $sidebar := 
     <div >
-      <h2>Домены:</h2>
+      <h2>Организации:</h2>
       <ul>
       {
         for $i in $conf:db/domains/domain
@@ -51,5 +51,5 @@ function view:domain( $domain ) {
       </ul>
     </div>
   
-    return st:fill-html-template($template, map{"sidebar": $sidebar, "content":$content, "nav":""} )/child::*  
+    return st:fill-html-template( $template, map{ "sidebar": $sidebar, "content":$content, "nav":"", "nav-login" : "" } )/child::*  
 };

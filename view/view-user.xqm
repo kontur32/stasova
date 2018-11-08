@@ -30,17 +30,17 @@ function view:owner-main( $domain ) {
 };
 
 declare
-  %rest:path("/trac/user/{$domain}/{$section}")
+  %rest:path("/trac/user/{$domain}/course")
   %rest:query-param("group", "{$group}")  
   %rest:query-param("item", "{$item}")
   %rest:query-param("pagination", "{$pagination}")
   %rest:query-param("message", "{$message}")
   %output:method ('xhtml')
-function view:user-section (  $domain, $section, $group,  $item, $pagination, $message ) {
+function view:user-section (  $domain, $group,  $item, $pagination, $message ) {
 
   if ( auth:get-session-scope ( $domain, Session:get('token') ) =  "user" )
   then (
-    
+    let $section := "course"
     let $userID := auth:get-session-user ( $domain, Session:get('token') )
     let $userLabel := $conf:domain( $domain )/data/owner/table[ @type="Data" and @aboutType= "users" ]/row[ @id= $userID ]/cell[ @id="label" ]/text()
     
@@ -95,7 +95,7 @@ function view:user-section (  $domain, $section, $group,  $item, $pagination, $m
                   "token" : $token
                 }
               )
-             let $link-label := string-join ( $s/cell[@id=("familyName", "givenName", "secondName")]/text() , " ")
+             let $link-label := string-join ( $s/cell[@id=( "familyName", "givenName", "secondName" )]/text() , " ")
              return 
               <li>
                 <a target="_self"  href= "{ $href }"  >
@@ -111,7 +111,7 @@ function view:user-section (  $domain, $section, $group,  $item, $pagination, $m
           </div>
          </div>
         <div class="col-md-6">
-          <h2>Отчеты</h2>
+          <h2>Готовые документы</h2>
           {view:build-reports-list ( $domain, $group, $token )}
         </div>
       </div>

@@ -12,15 +12,15 @@ declare
 function view:main()
 {
   let $template := serialize( doc("../src/main-tpl.html") )
-  let $nav-items-data := fetch:xml ( $conf:menuUrl("main"))/table
-  let $nav := inter:build-menu-items ($nav-items-data)
+  let $nav-items-data := fetch:xml ( $conf:menuUrl( "main" ) )/table
+  let $nav := inter:build-menu-items ( $nav-items-data )
      
   let $content := doc('../src/intro.html')
   let $sidebar := 
     <div >
       <img class="img-fluid"  src="http://iro37.ru/res/trac-src/img/logo.jpg"/>
     </div>
-  let $map := map{"sidebar": $sidebar, "content":$content, "nav":$nav}
+  let $map := map{"sidebar": $sidebar, "content":$content, "nav":$nav, "nav-login" : ""}
     return st:fill-html-template( $template, $map )//html 
 };
 
