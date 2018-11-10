@@ -4,7 +4,7 @@ import module  namespace xlsx = 'http://iro37.ru.ru/xq/modules/xlsx' at 'module-
 
 declare 
   %public
-function parse:from-xlsx($file as xs:base64Binary)
+function parse:from-xlsx( $file as xs:base64Binary )
 {
   let $meta := xlsx:binary-col-to-TRCI ($file, 'xl/worksheets/sheet2.xml')
   let $fields := 

@@ -12,13 +12,14 @@ function public:open-data ( $domain, $type, $q, $method )
 {
     let $query := public:parseQuery ( $domain, $q )        
     let $model := $data:model ( $domain, $type )
-    let $data := $data:domainData ( $domain )/child::*[ name() = ( "owner", "user" ) ]/table[ @type != "Model" ]/row [ @type= $type ]
     let $openCellID := $model/row[ cell[ @id = ("access", "open") ]/text() = ("public", "true" ) ]/cell[ @id = "id" ]/text()
+    let $data := $data:domainData ( $domain )/child::*[ name() = ( "owner", "user" ) ]/table[ @type != "Model" ]/row [ @type= $type ] [ cell [ @id = $openCellID ] ] [matches ( cell[ @id = $query?prop],  $query?expr ) ]
+    
     let $result :=
       element { "table" } {        
         for $expr in $query?expr
         return 
-            for $r in $data [ cell [ @id = $openCellID ] ] [matches ( cell[ @id = $query?prop], $expr ) ]
+            for $r in $data 
             return
               element { "row" } {
               $r/@id,
@@ -31,7 +32,7 @@ function public:open-data ( $domain, $type, $q, $method )
       return 
       if ( $method = "xlsx" )
       then (
-        public:trciCompact ( $data )
+        public:trciCompact ( $data  )
       )
       else ( $result )    
 };
