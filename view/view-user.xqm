@@ -73,7 +73,7 @@ function view:user-section (  $domain, $group,  $item, $pagination, $message ) {
         }</ul>
         <hr/>
         <p>шаблон анкеты слушателя
-            <a href="http://iro37.ru/res/tpl/xlsx/%d0%90%d0%9d%d0%9a%d0%95%d0%a2%d0%90-%d1%81%d0%bb%d1%83%d1%88%d0%b0%d1%82%d0%b5%d0%bb%d0%b8%d0%9a%d0%9f%d0%9a-14102018.xlsx">(скачать)</a>
+            <a href="http://iro37.ru/res/tpl/xlsx/%d0%90%d0%9d%d0%9a%d0%95%d0%a2%d0%90-%d1%81%d0%bb%d1%83%d1%88%d0%b0%d1%82%d0%b5%d0%bb%d0%b8%d0%9a%d0%9f%d0%9a-10112018.xlsx">(скачать)</a>
         </p>
       </div>    
 
