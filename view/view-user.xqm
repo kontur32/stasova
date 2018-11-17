@@ -13,8 +13,8 @@ declare
 function view:owner-main( $domain ) {
   if ( auth:get-session-scope ( $domain, Session:get('token') ) = "user"  )
   then (
-    let $nav-items-data := fetch:xml ( web:create-url($conf:menuUrl( "user" ), map{"domain":$domain}))/table
-    let $nav := inter:build-menu-items ($nav-items-data)
+    let $nav-items-data := fetch:xml ( web:create-url( $conf:menuUrl( "user" ), map{ "domain":$domain } ) )/table
+    let $nav := inter:build-menu-items ( $nav-items-data )
     let $userID := auth:get-session-user ( $domain, Session:get('token') )
     let $nav-login := inter:build-menu-login ( $conf:user ( $domain, $userID ) )
        

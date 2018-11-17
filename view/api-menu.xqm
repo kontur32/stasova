@@ -6,7 +6,7 @@ declare
   %rest:path("/trac/api/interface/menu/{$scope}")
   %rest:method('GET')
   %rest:query-param("domain", "{$domain}")
-function int:nav-user1 ( $scope, $domain )
+function int:nav-user ( $scope, $domain )
 {
   let $menu :=
   <menu>
