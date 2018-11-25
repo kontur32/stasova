@@ -6,7 +6,7 @@ declare
   %rest:path("/trac/api/interface/menu/{$scope}")
   %rest:method('GET')
   %rest:query-param("domain", "{$domain}")
-function int:nav-user ( $scope, $domain )
+function int:nav-scope ( $scope, $domain )
 {
   let $menu :=
   <menu>
@@ -64,4 +64,29 @@ function int:nav-user ( $scope, $domain )
   </menu>
   
  return $menu/child::*[ @id = $scope ]
+};
+
+declare
+  %rest:path("/trac/api/interface/menu/role/{$role}")
+  %rest:method('GET')
+  %rest:query-param("domain", "{$domain}")
+function int:nav-role ( $role, $domain )
+{
+  let $menu :=
+  <menu>
+    <table id="завуч" domain="{$domain}">
+      <row>
+        <cell id="id">domain</cell>
+        <cell id="label">Главная</cell>
+        <cell id="href">user/{$domain}</cell>
+      </row>
+      <row>
+        <cell id="id">staff</cell>
+        <cell id="label">Персонал</cell>
+        <cell id="href">user/{$domain}/staff</cell>
+      </row>
+   </table>
+  </menu>
+  
+ return $menu/child::*[ @id = $role ]
 };
