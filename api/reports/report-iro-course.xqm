@@ -25,12 +25,12 @@ function report:report ( $report, $domain, $type, $group, $token )
       
     let $content := 
         switch ( $report )
-        case "1" return report:зачисление ( $data )
-        case "2" return report:дистант ( $data )
-        case "3" return report:бухгалтерия ( $data )
+        case "1" return report:зачисление ( $domain, $data )
+        case "2" return report:дистант ( $domain, $data )
+        case "3" return report:бухгалтерия ( $domain, $data )
         case "4" return report:зачетная ( $data )
-        case "5" return report:регистрационная ( $data )
-        case "6" return report:зачисление ( $data )
+        case "5" return report:регистрационная ( $domain, $data )
+        case "6" return report:зачисление ( $domain, $data )
         case "7" return report:цсРегистрация ( $data )
         case "8" return report:цсЖурналПосещения ( $data )
         case "9" return report:цсЗачетнаяВедомость ( $data )
@@ -75,7 +75,7 @@ function report:выгрузка ( $domain, $report, $class, $container, $token 
 
 
 (: --- собтственно отчеты ----------------------------------------------------:)
-declare %private function report:зачисление ( $data ) {
+declare %private function report:зачисление ( $domain, $data ) {
      <table class="table table-striped">
         <tr>
           <th>№ пп</th>
@@ -89,7 +89,7 @@ declare %private function report:зачисление ( $data ) {
           let $school := 
             try {
               fetch:xml (
-                web:create-url ( "http://localhost:8984/trac/api/Data/public/" || "ood" || "/"|| "school",
+                web:create-url ( "http://localhost:8984/trac/api/Data/public/" || $domain || "/"|| "eduOrg",
                   map { "q" :  "id:" || $inn }  )
               )/table/row[1]
             }
@@ -117,7 +117,7 @@ declare %private function report:зачисление ( $data ) {
       </table>
 };
 
-declare %private function report:дистант ( $data ) {
+declare %private function report:дистант ( $domain, $data ) {
      <table class="table table-striped">
        <tr>
           <th>курс</th>
@@ -138,7 +138,7 @@ declare %private function report:дистант ( $data ) {
           let $school := 
             try {
               fetch:xml (
-                web:create-url ( "http://localhost:8984/trac/api/Data/public/" || "ood" || "/"|| "school",
+                web:create-url ( "http://localhost:8984/trac/api/Data/public/" || $domain || "/"|| "eduOrg",
                   map { "q" :  "id:" || $inn }  )
               )/table/row[1]
             }
@@ -163,7 +163,7 @@ declare %private function report:дистант ( $data ) {
      </table>
 };
 
-declare %private function report:бухгалтерия ( $data ) {
+declare %private function report:бухгалтерия ( $domain, $data ) {
      <table class="table table-striped">
        <tr>
         <th>номер</th>
@@ -184,7 +184,7 @@ declare %private function report:бухгалтерия ( $data ) {
           let $school := 
             try {
               fetch:xml (
-                web:create-url ( "http://localhost:8984/trac/api/Data/public/" || "ood" || "/"|| "school",
+                web:create-url ( "http://localhost:8984/trac/api/Data/public/" || $domain || "/"|| "eduOrg",
                   map { "q" :  "id:" || $inn }  )
               )/table/row[1]
             }
@@ -246,7 +246,7 @@ declare %private function report:зачетная ( $data ) {
      </table>
 };
 
-declare %private function report:регистрационная ( $data ) {
+declare %private function report:регистрационная ( $domain, $data ) {
      <table class="table table-striped">
         <tr>
           <th>номер</th>
@@ -261,7 +261,7 @@ declare %private function report:регистрационная ( $data ) {
             let $school := 
               try {
                 fetch:xml (
-                  web:create-url ( "http://localhost:8984/trac/api/Data/public/" || "ood" || "/"|| "school",
+                  web:create-url ( "http://localhost:8984/trac/api/Data/public/" || $domain || "/"|| "eduOrg",
                     map { "q" :  "id:" || $inn }  )
                 )/table/row[1]
               }
