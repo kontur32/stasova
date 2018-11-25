@@ -31,6 +31,9 @@ function report:report ( $report, $domain, $type, $group, $token )
         case "4" return report:зачетная ( $data )
         case "5" return report:регистрационная ( $data )
         case "6" return report:зачисление ( $data )
+        case "7" return report:цсРегистрация ( $data )
+        case "8" return report:цсЖурналПосещения ( $data )
+        case "9" return report:цсЗачетнаяВедомость ( $data )
         default return <table/>      
     return $content
 };
@@ -63,7 +66,7 @@ function report:выгрузка ( $domain, $report, $class, $container, $token 
   let $rows := for $row in $content /child::*[ position()>1 ]
                 return docx:row($row)
   
-  let $entry := docx:table-insert-rows ($doc, $rows)
+  let $entry := docx:table-insert-rows-last ($doc, $rows)
   let $updated := archive:update ($template, 'word/document.xml', $entry)
   
   return $updated
@@ -283,5 +286,87 @@ declare %private function report:регистрационная ( $data ) {
               <td></td>
             </tr>
         }
+     </table>
+};
+
+declare %private function report:цсРегистрация ( $data ) {
+     <table class="table table-striped">
+       <tr>
+          <th>№ пп</th>
+          <th>ФИО слушателя</th>
+          <th>Контакные данные</th>
+          <th>Подпись</th>
+        </tr>
+        
+        {
+        for $r in $data/table/row
+          order by $r/cell[@id="familyName"]
+          count $n
+        return
+          <tr>
+            <td>{ $n }</td>
+            <td>{ string-join ($r/cell[@id=("familyName", "givenName", "secondName") ], " ") }</td>
+            <td>{ $r/cell[@id="telephone"] || ", " || $r/cell[@id="email"]  }</td>
+            <td></td>
+          </tr>
+        } 
+     </table>
+};
+
+declare %private function report:цсЖурналПосещения ( $data ) {
+     <table class="table table-striped">
+       <tr>
+          <th>№ пп</th>
+          <th>ФИО слушателя</th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+        </tr>
+        {
+        for $r in $data/table/row
+          order by $r/cell[@id="familyName"]
+          count $n
+        return
+          <tr>
+            <td>{ $n }</td>
+            <td>{ string-join ($r/cell[@id=("familyName", "givenName", "secondName") ], " ") }</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+        } 
+     </table>
+};
+
+declare %private function report:цсЗачетнаяВедомость ( $data ) {
+     <table class="table table-striped">
+       <tr>
+          <th>№ пп</th>
+          <th>ФИО слушателя</th>
+          <th>Отметка</th>
+          <th>Подпись преподавателя</th>
+        </tr>
+        {
+        for $r in $data/table/row
+          order by $r/cell[@id="familyName"]
+          count $n
+        return
+          <tr>
+            <td>{ $n }</td>
+            <td>{ string-join ($r/cell[@id=("familyName", "givenName", "secondName") ], " ") }</td>
+            <td></td>
+            <td></td>
+          </tr>
+        } 
      </table>
 };

@@ -1,6 +1,14 @@
- module namespace conf = 'http://iro37.ru/xq/modules/config';
+module namespace conf = 'http://iro37.ru/xq/modules/config';
 
-declare variable $conf:db := db:open('trac-dev');
+declare variable $conf:dbName := 
+  try {
+    doc ("config.xml")//dbName/text()
+  }
+  catch * {
+    "trac-dev"
+};
+
+declare variable $conf:db := db:open( $conf:dbName );
 
 declare variable $conf:domain :=
        function ($domain) { 
