@@ -26,7 +26,6 @@ function view:main( $domain )
           <th>Пользователь</th>
           <th>Контейнеров</th>
           <th>Записей</th>
-          <th>Записей/Контейнер</th>
           <th>Контейнеров за 7 дней</th>
           <th>Записей за 7 дней</th>
         </tr>
@@ -39,7 +38,6 @@ function view:main( $domain )
                <td>{ $users[@id = $i/@id]/cell[@id="label"]/text() }</td>
                <td>{ count($i/table) }</td>
                <td>{ count($i/table/row) }</td>
-               <td>{ round ( count($i/table/row) div count($i/table), 1 ) }</td>
                <td>{ count($i/table[( ( ( current-dateTime() -  xs:dateTime (@dateTime/data() ) ) div  xs:dayTimeDuration('P1D') ) - 7 < 7 )]) }</td>
                <td>{ count($i/table[( ( ( current-dateTime() -  xs:dateTime (@dateTime/data() ) ) div  xs:dayTimeDuration('P1D') ) - 7 < 7 )]/row) }</td>
            </tr>  
