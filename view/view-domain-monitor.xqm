@@ -20,7 +20,7 @@ function view:main( $domain )
   let $users := $domain/data/owner/table[ @type="Data" and @aboutType="users" ]/row
      
   let $content := 
-      <table>
+      <table class="table table-striped">
         <tr>
           <th>№ пп</th>
           <th>Пользователь</th>
@@ -33,9 +33,9 @@ function view:main( $domain )
          for $i in $userData
          count $n
          return 
-           <tr>
+           <tr class="text-center">
                <td>{ $n }</td>
-               <td>{ $users[@id = $i/@id]/cell[@id="label"]/text() }</td>
+               <td class="text-left">{ $users[@id = $i/@id]/cell[@id="label"]/text() }</td>
                <td>{ count($i/table) }</td>
                <td>{ count($i/table/row) }</td>
                <td>{ count($i/table[( ( ( current-dateTime() -  xs:dateTime (@dateTime/data() ) ) div  xs:dayTimeDuration('P1D') ) - 7 < 7 )]) }</td>
