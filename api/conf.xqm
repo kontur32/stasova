@@ -29,6 +29,6 @@ declare variable $conf:url :=
           <cell id="user/userID">http://localhost:8984/trac/api/auth/user/userID</cell>
         </row>
       </table>
-    return 
-      $urls/row[ @id = $group ]/cell [ @id = $funct ]/text()
+    return "http://localhost:8984/trac/api/" || $funct
+      (:$urls/row[ @id = $group ]/cell [ @id = $funct ]/text():)
 };
