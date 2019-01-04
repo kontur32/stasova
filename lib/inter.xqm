@@ -55,16 +55,28 @@ function inter:form-update ( $callback, $action, $token, $domain, $group )
 
 declare
 function inter:section-groups (
-      $data as element(table)*
+      $data as element(table)*, $domain, $type, $callback, $token
        )
 {
-  <ul>
+  <table>
+    <form method="GET" action="/trac/api/delete/owner">
+    <input type="text" name="token" value="{ $token }" hidden="true"/>
+    <input type="text" name="domain" value="{ $domain }" hidden="true"/>
+    <input type="text" name="type" value="{ $type }" hidden="true"/>
+    <input type="text" name="callback" value="{ $callback }" hidden="true" />
+    <button onclick="return confirm('Удалить?');" >Удалить…</button>
     {
       for $i in $data
       return 
-        <li><a href="?group={$i/@aboutType/data()}">{$i/@label/data()}</a></li>
+        <tr>
+          <td>
+            <input type="checkbox" name="class" value="{$i/@aboutType/data()}" onclick="buttons(this)"/>
+            <a href="?group={$i/@aboutType/data()}">{$i/@label/data()}</a>
+          </td>
+        </tr>
     }
-  </ul> 
+    </form>
+  </table> 
 };
 
 declare

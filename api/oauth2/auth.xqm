@@ -8,9 +8,11 @@ declare
   %rest:query-param( "domain", "{$domain}" )
   %rest:query-param( "token", "{$token}" )
   %output:method ("text")
-function auth:user-scope ( $domain as xs:string, $token as xs:string ) 
+function auth:userScope ( $domain as xs:string, $token as xs:string ) 
 {
-  $data:domainSessions ( $domain )/session [ @token = $token ] [ xs:dateTime (@expires/data() ) > current-dateTime () ]/@scope/data()
+  let $session := db:open ( $data:dbName, "sessions")/sessions/session [ @token = $token ]
+  return
+    $session [ xs:dateTime ( @expires/data() ) > current-dateTime () ]/@scope/data()
 };
 
 declare
@@ -19,7 +21,7 @@ declare
   %rest:query-param( "domain", "{$domain}" )
   %rest:query-param( "token", "{$token}" )
   %output:method ("text")
-function auth:user-id ( $domain as xs:string, $token as xs:string ) 
+function auth:userID ( $domain as xs:string, $token as xs:string ) 
 {
   $data:domainSessions ( $domain )/session [ @token = $token ] [ xs:dateTime (@expires/data() ) > current-dateTime () ]/@userid/data()
 };

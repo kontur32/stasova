@@ -67,7 +67,7 @@ function view:owner-section ( $domain, $section, $group,  $item, $pagination, $m
     let $sidebar :=
       <div>
         <h2>{ $sectionLabel }</h2>
-        { inter:section-groups ( $models ) }
+        { inter:section-groups ( $models, $domain, $section, $callback, $token ) }
         <div class="border-top">
           <p><i>{$message}</i></p>
           {$inputForm}
@@ -80,7 +80,8 @@ function view:owner-section ( $domain, $section, $group,  $item, $pagination, $m
           <h2>{ $model/@label/data() }</h2>
                 <a href="{ string-join ( ('/trac/api/Data/public', $domain, $group), '/') || '?q=id:.*'}">
                   (открытый доступ по API)
-                </a>   
+                </a>
+                <p>Дата загрузки: { $data[ @aboutType = $group ]/@updated/data() }</p>   
           <div>
             { inter:group-items ( $data[ @aboutType = $group ], $pagination  ) }
             { inter:pagination ( $group, $pagination, $data ) }
@@ -90,7 +91,7 @@ function view:owner-section ( $domain, $section, $group,  $item, $pagination, $m
           <h2> { 
             let $itemLabel := $data [ @aboutType = $group ] /@label/data()
             return 
-              concat (upper-case (substring ( $itemLabel, 1, 1)), substring ( $itemLabel, 2 ))
+              concat ( upper-case ( substring ( $itemLabel, 1, 1 ) ), substring ( $itemLabel, 2 ) )
           }</h2>
           {
             inter:item-properties ( $model, $data/row[ @id =  $item ] )

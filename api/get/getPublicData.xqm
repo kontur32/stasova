@@ -36,7 +36,7 @@ function public:open-data ( $domain, $type, $q, $f, $method )
       return 
       switch ( $method ) 
       case ( "xlsx" ) return public:trciCompact ( $result  )
-      case  ( "trci" ) return  $result 
+      case ( "trci" ) return  $result 
       case ( "csv" ) return public:csvExport ( $result )
       default return $result 
 };

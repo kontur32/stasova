@@ -11,7 +11,7 @@ declare
   %rest:query-param("q", "{$queryString}", ".*")
 function user:data ( $domain, $token, $type, $queryString )
 {
-  if ( auth:get-session-scope ( $domain, $token ) = "user" or 1 )
+  if ( auth:get-session-scope ( $domain, $token ) = "user" )
   then (
     let $query := 
         try {
