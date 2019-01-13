@@ -1,4 +1,4 @@
-module namespace input = "http://www.iro37.ru/stasova/api/input";
+module namespace input = "http://www.iro37.ru/trac/api/postOwnerData";
 
 import module namespace auth = 'http://iro37.ru/xq/modules/auth' at '../../permissions/auth.xqm';
 import module namespace parse = "http://www.iro37.ru/stasova/TRCI-parse" at "../../TRCI-parse.xqm";
