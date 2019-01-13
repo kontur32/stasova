@@ -12,7 +12,7 @@ declare variable $conf:url :=
           <cell id="processing">http://localhost:8984/trac/api/processing</cell>
           <cell id="processing/parse">http://localhost:8984/trac/api/processing/parse</cell>
         </row>
-        <row id="example">
+        <row id="lipers">
           <cell id="processing">http://localhost:8984/trac/api/processing</cell>
           <cell id="processing/parse">http://localhost:8984/trac/api/processing/parse</cell>
         </row>

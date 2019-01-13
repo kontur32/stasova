@@ -2,6 +2,8 @@ module namespace report = "http://www.iro37.ru/trac/api/report";
 
 import module namespace docx = "docx.iroio.ru" at '../../../iro/module-docx.xqm';
 
+import module namespace Report1 = "http://www.iro37.ru/trac/api/report" at "../../../functionTRaC/Отчет-полных-лет.xqm";
+
 declare
   %rest:path("/trac/api/output/Report/{$domain}/{$report}")
   %rest:method('GET')
@@ -34,6 +36,7 @@ function report:report ( $report, $domain, $type, $group, $token )
         case "7" return report:цсРегистрация ( $data )
         case "8" return report:цсЖурналПосещения ( $data )
         case "9" return report:цсЗачетнаяВедомость ( $data )
+        case "10" return report:Возраст( $data )
         default return <table/>      
     return $content
 };
@@ -369,4 +372,8 @@ declare %private function report:цсЗачетнаяВедомость ( $data 
           </tr>
         } 
      </table>
+};
+
+declare function report:Возраст ( $data ) {
+  Report1:Возраст ("", $data )
 };
