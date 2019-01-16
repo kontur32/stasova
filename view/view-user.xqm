@@ -44,7 +44,9 @@ function view:user-section (  $domain, $group,  $item, $pagination, $message ) {
     let $userID := auth:get-session-user ( $domain, Session:get('token') )
     let $userLabel := $conf:domain( $domain )/data/owner/table[ @type="Data" and @aboutType= "users" ]/row[ @id= $userID ]/cell[ @id="label" ]/text()
     
-    let $nav-items-data := fetch:xml ( web:create-url( $conf:menuUrl( "user" ), map{ "domain":$domain } ) )/table
+    let $nav-items-data := fetch:xml( web:create-url( $conf:menuUrl( "user" ), map{ "domain":$domain } ) )/table
+    let $nav-static := fetch:xml( web:create-url( $conf:menuUrl( "static" ), map{ "domain":$domain } ) )
+    
     let $nav := inter:build-menu-items ( $nav-items-data )
     let $nav-login := inter:build-menu-login ( $conf:user ( $domain, $userID ) )
    
@@ -120,7 +122,7 @@ function view:user-section (  $domain, $group,  $item, $pagination, $message ) {
       </div>
     
     let $template := serialize( doc("../src/main-tpl.html") )
-    let $map := map{ "nav":$nav, "nav-login" : $nav-login, "sidebar" :  $sidebar, "content" : $content }
+    let $map := map{ "nav":$nav, "nav-login" : $nav-login, "nav-static" : $nav-static, "sidebar" :  $sidebar, "content" : $content }
     return st:fill-html-template( $template, $map )//html 
   )
   else (
