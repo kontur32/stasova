@@ -30,17 +30,16 @@ function view:owner-main( $domain ) {
 };
 
 declare
-  %rest:path("/trac/user/{$domain}/course")
+  %rest:path("/trac/user/{$domain}/{$section}")
   %rest:query-param("group", "{$group}")  
   %rest:query-param("item", "{$item}")
   %rest:query-param("pagination", "{$pagination}")
   %rest:query-param("message", "{$message}")
   %output:method ('xhtml')
-function view:user-section (  $domain, $group,  $item, $pagination, $message ) {
+function view:user-section (  $domain, $group, $section, $item, $pagination, $message ) {
 
   if ( auth:get-session-scope ( $domain, Session:get('token') ) =  "user" )
   then (
-    let $section := "course"
     let $userID := auth:get-session-user ( $domain, Session:get('token') )
     let $userLabel := $conf:domain( $domain )/data/owner/table[ @type="Data" and @aboutType= "users" ]/row[ @id= $userID ]/cell[ @id="label" ]/text()
     
@@ -51,7 +50,7 @@ function view:user-section (  $domain, $group,  $item, $pagination, $message ) {
     let $nav-login := inter:build-menu-login ( $conf:user ( $domain, $userID ) )
    
     let $group := if ( $group ) then ( $group ) else (
-      $conf:domain( $domain )/data/owner/table[ @type ="Data" and @aboutType = "course" ]/row[1]/@id/data()
+      $conf:domain( $domain )/data/owner/table[ @type ="Data" and @aboutType = $section ]/row[1]/@id/data()
     )
    
     let $callback := string-join (( "/trac", "user" , $domain, $section), "/")
