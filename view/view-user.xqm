@@ -13,7 +13,12 @@ declare
 function view:owner-main( $domain ) {
   if ( auth:get-session-scope ( $domain, Session:get('token') ) = "user"  )
   then (
-    let $nav-items-data := fetch:xml ( web:create-url( $conf:menuUrl( "user" ), map{ "domain":$domain } ) )/table
+    let $nav-items-data := 
+      try {
+        fetch:xml ( web:create-url( $conf:menuUrl( "user" ), map{ "domain":$domain } ) )/table
+      }
+      catch * {<table/>}
+    
     let $nav := inter:build-menu-items ( $nav-items-data )
     let $userID := auth:get-session-user ( $domain, Session:get('token') )
     let $nav-login := inter:build-menu-login ( $conf:user ( $domain, $userID ) )
@@ -21,7 +26,7 @@ function view:owner-main( $domain ) {
     let $content := 
         <p>Добро пожаловать на страницу руководителя КПК <b>"{$conf:domain ( $domain )/@label/data()}"</b></p>
     let $template := serialize( doc("../src/main-tpl.html") )
-    let $map := map{ "nav":$nav, "nav-login" : $nav-login, "sidebar" :  "", "content" : $content }
+    let $map := map{ "nav":$nav, "nav-login" : $nav-login, "nav-static" : "", "sidebar" :  "", "content" : $content }
     return st:fill-html-template( $template, $map )//html 
   )
   else (
@@ -43,8 +48,19 @@ function view:user-section (  $domain, $group, $section, $item, $pagination, $me
     let $userID := auth:get-session-user ( $domain, Session:get('token') )
     let $userLabel := $conf:domain( $domain )/data/owner/table[ @type="Data" and @aboutType= "users" ]/row[ @id= $userID ]/cell[ @id="label" ]/text()
     
-    let $nav-items-data := fetch:xml( web:create-url( $conf:menuUrl( "user" ), map{ "domain":$domain } ) )/table
-    let $nav-static := fetch:xml( web:create-url( $conf:menuUrl( "static" ), map{ "domain":$domain } ) )
+    let $nav-items-data := 
+      try {
+        fetch:xml( web:create-url( $conf:menuUrl( "user" ), map{ "domain":$domain } ) )/table
+      }
+      catch * {
+        
+      }
+    
+    let $nav-static := 
+      try {
+        fetch:xml( web:create-url( $conf:menuUrl( "static" ), map{ "domain":$domain } ) )
+      }
+      catch * { '' }
     
     let $nav := inter:build-menu-items ( $nav-items-data )
     let $nav-login := inter:build-menu-login ( $conf:user ( $domain, $userID ) )

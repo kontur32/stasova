@@ -88,6 +88,18 @@ function int:nav-static ( $domain )
             </li>
           </ul>
     </table>
+    <table id="lipers" domain="{$domain}">
+         <ul class="navbar-nav">
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
+                ЗаполниТитул
+              </a>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" target="_blanc" href="http://dbx.iro37.ru/zapolnititul/v/lipers?path=edu&amp;form=rp">Рабочая программа</a>
+              </div>
+            </li>
+          </ul>
+    </table>
   </menu>
   
  return $menu/table[ @id = $domain ]

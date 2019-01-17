@@ -19,7 +19,7 @@ function view:owner-main( $scope, $domain ) {
     let $content := 
         <p>Добро пожаловать на страницу владельца домена <b>"{$conf:db//domain[@id=$domain]/@label/data()}"</b></p>
     let $template := serialize( doc("../src/main-tpl.html") )
-    let $map := map{ "sidebar" : "", "content" :  $content, "nav":$nav, "nav-login" : $nav-login }
+    let $map := map{ "sidebar" : "", "content" :  $content, "nav":$nav, "nav-login" : $nav-login, "nav-static" : "" }
     return st:fill-html-template( $template, $map )//html 
     
   )
@@ -100,7 +100,7 @@ function view:owner-section ( $domain, $section, $group,  $item, $pagination, $m
       </div>
     
     let $template := serialize( doc("../src/main-tpl.html") )
-    let $map := map{ "nav":$nav, "nav-login" : $nav-login, "sidebar" :  $sidebar, "content" : $content }
+    let $map := map{ "nav":$nav, "nav-login" : $nav-login, "nav-static" : "", "sidebar" :  $sidebar, "content" : $content }
     return st:fill-html-template( $template, $map )//html 
   )
   else (
