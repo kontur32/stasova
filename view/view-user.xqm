@@ -90,10 +90,10 @@ function view:user-section (  $domain, $group, $section, $item, $pagination, $me
         }</ul>
         <hr/>
         <p>шаблон анкеты (Школы, СПО, ДО и т.п.)
-            <a href="http://iro37.ru/res/tpl/xlsx/АНКЕТА-слушателиКПК-10112018.xlsx">(скачать)</a>
+            <a href="http://iro37.ru/res/tpl/xlsx/АНКЕТА-слушателиКПК-18012019.xlsx">(скачать)</a>
         </p>
         <p>шаблон анкеты (ДОУ)
-            <a href="http://iro37.ru/res/tpl/xlsx/АНКЕТА-слушателиКПК-ДОУ-10112018.xlsx">(скачать)</a>
+            <a href="http://iro37.ru/res/tpl/xlsx/АНКЕТА-слушателиКПК-ДОУ-18012019.xlsx">(скачать)</a>
         </p>
       </div>    
 
