@@ -61,14 +61,15 @@ declare
   %output:method('text')  
 function view:main2 ( $domain, $year, $rowField, $colField )
 {
-  let $courses := fetch:xml("http://localhost:8984/trac/api/Data/public/"|| $domain ||"/course")/table/row[cell[@id="yearPK"]/text() = $year ]/cell[@id="id"]/text()
-  let $students := fetch:xml("http://localhost:8984/trac/api/Data/public/"|| $domain ||"/student")/table/row
-  
+  let $courses := 
+    fetch:xml("http://localhost:8984/trac/api/Data/public/"|| $domain ||"/course")/table/row[cell[@id="yearPK"]/text() = $year ]/cell[@id="id"]/text()
+  let $students := 
+    fetch:xml("http://localhost:8984/trac/api/Data/public/"|| $domain ||"/student")/table/row
   let $mo :=
     distinct-values ( $students/table/row/cell[@id=$rowField]/text())
   
   for $i in $students
-  where  $students[cell[@id="course"]/text() = $courses ]
+  where $i[ cell[@id="course"]/text() = $courses ]
   group by $m := $i/cell[@id=$rowField]/text()
   return 
       ( "&#10;{" || $m || ": " || count($i),
