@@ -65,20 +65,19 @@ function view:main2 ( $domain, $year, $rowField, $colField )
     fetch:xml("http://localhost:8984/trac/api/Data/public/"|| $domain ||"/course")/table/row[cell[@id="yearPK"]/text() = $year ]/cell[@id="id"]/text()
   let $students := 
     fetch:xml("http://localhost:8984/trac/api/Data/public/"|| $domain ||"/student")/table/row
-  let $mo :=
-    distinct-values ( $students/table/row/cell[@id=$rowField]/text())
   
   for $i in $students
   where $i[ cell[@id="course"]/text() = $courses ]
-  group by $m := $i/cell[@id=$rowField]/text()
+  group by $row := $i/cell[@id=$rowField]/text()
+  order by $row
   return 
-      ( "&#10;{" || $m || ": " || count($i),
+      ( "&#10;{" || $row || ": " || count($i),
        
          for $b in $i
-         group by $sch := $b/cell[@id=$colField]/text()
+         group by $col := $b/cell[@id=$colField]/text()
+         order by $col
          return 
-           ( "&#10;      {" || $sch || ": " || count ($b) || "}" ),
+           ( "&#10;      {" || $col || ": " || count ($b) || "}" ),
        "&#10;}"
-      
     )
 };
