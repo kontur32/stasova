@@ -2,7 +2,8 @@ module namespace report = "http://www.iro37.ru/trac/api/report";
 
 import module namespace docx = "docx.iroio.ru" at '../../../iro/module-docx.xqm';
 
-import module namespace Report1 = "http://www.iro37.ru/trac/function/report" at "../../../functionTRaC/reportAge.xqm";
+import module namespace Report1 = "http://www.iro37.ru/trac/api/report/reportAge" at "../../../functionTRaC/reportAge.xqm";
+import module namespace Report2 = "http://www.iro37.ru/trac/api/report/contactsStaffers" at "../../../functionTRaC/contactsStaffers.xqm";
 
 declare
   %rest:path("/trac/api/output/Report/{$domain}/{$report}")
@@ -37,6 +38,7 @@ function report:report ( $report, $domain, $type, $group, $token )
         case "8" return report:цсЖурналПосещения ( $data )
         case "9" return report:цсЗачетнаяВедомость ( $data )
         case "10" return report:Возраст( $data )
+        case "11" return report:КонтактыСотрудников ( $data )
         default return <table/>      
     return $content
 };
@@ -376,4 +378,8 @@ declare %private function report:цсЗачетнаяВедомость ( $data 
 
 declare function report:Возраст ( $data ) {
   Report1:Возраст ( $data )
+};
+
+declare function report:КонтактыСотрудников ( $data ) {
+  Report2:контакты ( $data )
 };
