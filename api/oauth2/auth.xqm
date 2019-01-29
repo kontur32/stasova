@@ -25,3 +25,14 @@ function auth:userID ( $domain as xs:string, $token as xs:string )
 {
   $data:domainSessions ( $domain )/session [ @token = $token ] [ xs:dateTime (@expires/data() ) > current-dateTime () ]/@userid/data()
 };
+
+declare
+  %rest:path( "/trac/api/auth/get/scope" )
+  %rest:method( "GET" )
+  %rest:query-param( "ACCESS_TOKEN", "{ $ACCESS_TOKEN }", "" )
+  %output:method ("text")
+function auth:rootPermission( $ACCESS_TOKEN as xs:string ) {
+    if ( $ACCESS_TOKEN = "raketa" )
+    then ("root")
+    else ()
+};
