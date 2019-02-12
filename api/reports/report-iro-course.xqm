@@ -10,9 +10,10 @@ declare
   %rest:method('GET')
   %rest:query-param( "type", "{$type}" )
   %rest:query-param( "group", "{$group}" )     
+  %rest:query-param( "method", "{$method}", "html" )
   %rest:query-param( "token", "{$token}" )
   %output:method ( "xml" )
-function report:report ( $report, $domain, $type, $group, $token )
+function report:report ( $report, $domain, $type, $group, $method, $token )
 {
     let $data := 
       try {
@@ -40,7 +41,10 @@ function report:report ( $report, $domain, $type, $group, $token )
         case "10" return report:Возраст( $data )
         case "11" return report:КонтактыСотрудников ( $data )
         default return <table/>      
-    return $content
+    return 
+      if ( $method = "html" )
+      then ( $content )
+      else ( )
 };
 
  declare
@@ -51,7 +55,8 @@ function report:report ( $report, $domain, $type, $group, $token )
   %rest:query-param( "token", "{$token}" )
 function report:выгрузка ( $domain, $report, $class, $container, $token )
 {
-  let $content := report:report ( $report, $domain, $class, $container, $token )
+  let $method := "html"
+  let $content := report:report ( $report, $domain, $class, $container, $method, $token )
 
   let $tpl := 
       try {
