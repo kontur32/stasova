@@ -32,11 +32,19 @@ declare variable $conf:url :=
           <cell id="processing">http://localhost:8984/trac/api/processing</cell>
           <cell id="processing/parse">http://localhost:8984/trac/api/processing/parse</cell>
         </row>
+         <row id="saivpds">
+          <cell id="processing">http://localhost:8984/trac/api/processing</cell>
+          <cell id="processing/parse">http://localhost:8984/trac/api/processing/parse</cell>
+        </row>
         <row id="auth">
           <cell id="user/scope">http://localhost:8984/trac/api/auth/user/scope</cell>
           <cell id="user/userID">http://localhost:8984/trac/api/auth/user/userID</cell>
         </row>
       </table>
+    let $row := 
+      if (  $urls/row[ @id = $group ] )
+      then ( $group )
+      else ( "default" )
     return
-      $urls/row[ @id = $group ]/cell [ @id = $funct ]/text()
+      $urls/row[ @id = $row ]/cell [ @id = $funct ]/text()
 };
