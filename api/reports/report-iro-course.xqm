@@ -40,6 +40,7 @@ function report:report ( $report, $domain, $type, $group, $method, $token )
         case "9" return report:цсЗачетнаяВедомость ( $data )
         case "10" return report:Возраст( $data )
         case "11" return report:КонтактыСотрудников ( $data )
+        case "20" return report:семинарияРейтингКурса ( $domain, $data )
         default return <table/>      
     return 
       if ( $method = "html" )
@@ -387,4 +388,61 @@ declare function report:Возраст ( $data ) {
 
 declare function report:КонтактыСотрудников ( $data ) {
   Report2:контакты ( $data )
+};
+
+declare %private function report:семинарияРейтингКурса ( $domain, $data ) {
+  let $data := 
+      try {
+        fetch:xml (
+          web:create-url ( "http://localhost:8984/trac/api/Data/public/" || $domain || "/"|| "student",
+            map { }  )
+        )
+      }
+      catch * { }
+   let $курсы := 
+      try {
+        fetch:xml (
+          web:create-url ( "http://localhost:8984/trac/api/Data/public/" || $domain || "/"|| "course",
+            map { }  )
+        )
+      }
+      catch * { }
+   return  
+     <table class="table table-striped">
+       <tr>
+          <th>место</th>
+          <th>студент</th>
+          <th>средний балл</th>
+          <th>качество знаний, %</th>
+          <th>рейтинг</th>
+        </tr>
+        {
+        for $r in $data/table/row
+        let $курс := $курсы//row[ @id = $r/cell[ @id = "course"] ]/cell[ @id = "label"]/text()
+        let $notes := $r/cell[  matches( @id/data(), "^o[0-9]" ) ][ number(text()) > 0 ]/text()
+        let $среднийБалл := sum($notes) div count($notes)
+        let $качество := 
+          if( $среднийБалл >= 4 )
+          then( 100 )
+          else(
+             if( $среднийБалл < 3 )
+             then( 0 )
+             else( ( $среднийБалл - 3 ) * 100 )
+          )
+        let $рейтинг := $среднийБалл * $качество
+        order by $рейтинг descending
+        count $c
+        return
+        
+        <tr>
+          <td>{ $c }</td>
+          <td>
+            { string-join ( $r/cell[@id=("familyName", "givenName", "secondName")]/text() , " ") || ", " || $курс }
+          </td>
+          <td>{ $среднийБалл }</td>
+          <td>{ $качество }</td>
+          <td>{ $рейтинг }</td>
+        </tr>
+        }
+     </table>
 };
