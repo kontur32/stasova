@@ -76,7 +76,7 @@ function report:выгрузка ( $domain, $report, $class, $container, $token 
   let $rows := for $row in $content /child::*[ position()>1 ]
                 return docx:row($row)
   
-  let $entry := docx:table-insert-rows-last ($doc, $rows)
+  let $entry := docx:table-insert-rows ($doc, $rows)
   let $updated := archive:update ($template, 'word/document.xml', $entry)
   
   return $updated
