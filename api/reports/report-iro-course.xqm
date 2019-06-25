@@ -422,6 +422,7 @@ declare %private function report:семинарияРейтингСтудент�
         for $r in $data/table/row
         let $курс := $курсы//row[ @id = $r/cell[ @id = "course"] ]/cell[ @id = "label"]/text()
         let $notes := $r/cell[  matches( @id/data(), "^o[0-9]" ) ][ number(text()) > 0 ]/text()
+        where count( $notes ) > 0 
         let $среднийБалл := sum($notes) div count($notes)
         let $качество := 
           if( $среднийБалл >= 4 )
@@ -479,6 +480,7 @@ declare %private function report:семинарияРейтингПоКурса�
         let $r := $data[ cell[@id="course"] = $c ]
         let $курс := $курсы//row[ @id = $c ]/cell[ @id = "label"]/text()
         let $notes := $r/cell[  matches( @id/data(), "^o[0-9]" ) ][ number(text()) > 0 ]/text()
+        where count( $notes ) > 0
         let $среднийБалл := sum( $notes ) div count( $notes )
         let $качество := 
           if( $среднийБалл >= 4 )
