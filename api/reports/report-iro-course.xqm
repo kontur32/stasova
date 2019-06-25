@@ -423,7 +423,7 @@ declare %private function report:семинарияРейтингСтудент�
         let $курс := $курсы//row[ @id = $r/cell[ @id = "course"] ]/cell[ @id = "label"]/text()
         let $notes := $r/cell[  matches( @id/data(), "^o[0-9]" ) ][ number(text()) > 0 ]/text()
         where count( $notes ) > 0 
-        let $среднийБалл := round( sum($notes) div count($notes), 2 )
+        let $среднийБалл :=  sum($notes) div count($notes)
         let $качество := 
           if( $среднийБалл >= 4 )
           then( 100 )
@@ -441,9 +441,9 @@ declare %private function report:семинарияРейтингСтудент�
             <td>
               { string-join ( $r/cell[@id=("familyName", "givenName", "secondName")]/text() , " ") || ", " || $курс }
             </td>
-            <td>{ $среднийБалл }</td>
-            <td>{ $качество }</td>
-            <td>{ $рейтинг }</td>
+            <td>{ round( $среднийБалл, 2 ) }</td>
+            <td>{ round( $качество, 2 ) }</td>
+            <td>{ round( $рейтинг, 2 ) }</td>
           </tr>
         }
      </table>
@@ -481,7 +481,7 @@ declare %private function report:семинарияРейтингПоКурса�
         let $курс := $курсы//row[ @id = $c ]/cell[ @id = "label"]/text()
         let $notes := $r/cell[  matches( @id/data(), "^o[0-9]" ) ][ number(text()) > 0 ]/text()
         where count( $notes ) > 0
-        let $среднийБалл := round( sum( $notes ) div count( $notes ), 2 )
+        let $среднийБалл := sum( $notes ) div count( $notes )
         let $качество := 
           if( $среднийБалл >= 4 )
           then( 100 )
@@ -499,9 +499,9 @@ declare %private function report:семинарияРейтингПоКурса�
             <td>
               { $курс }
             </td>
-            <td>{ $среднийБалл }</td>
-            <td>{ $качество }</td>
-            <td>{ $рейтинг }</td>
+            <td>{ round( $среднийБалл, 2) }</td>
+            <td>{ round( $качество, 2 ) }</td>
+            <td>{ round( $рейтинг, 2 ) }</td>
           </tr>
         }
      </table>
