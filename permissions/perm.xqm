@@ -23,10 +23,10 @@ function pm:login-check(  $user, $pass, $domain, $scope ) {
       Session:set('domain', $domain),
       Session:set('scope', $scope),
      
-      db:output( web:redirect('/trac/' || $scope || '/' || $domain ))
+      update:output( web:redirect('/trac/' || $scope || '/' || $domain ))
     )
     else (
-      db:output( web:redirect('/trac'))
+      update:output( web:redirect('/trac'))
     )
 };
 
@@ -36,7 +36,7 @@ declare
 function pm:logout(  ) {
   delete node $conf:db//domain[@id = Session:get('domain')]/sessions/session[@userid = Session:get('id')],
   session:close(),
-  db:output (web:redirect( "/" || $conf:base ) )
+  update:output (web:redirect( "/" || $conf:base ) )
 };
 
 
@@ -61,7 +61,7 @@ function pm:check-user() {
       auth:set-session( $domain, $user, Session:get("scope"), $new-token ) 
     )
     else (
-       db:output (web:redirect('/trac')  )
+       update:output (web:redirect('/trac')  )
     )
 };
 
@@ -80,7 +80,7 @@ function pm:check-owner() {
       auth:set-session($domain, $user, Session:get("scope"), $new-token ) 
     )
     else (
-       db:output (web:redirect('/trac/domains')  )
+       update:output (web:redirect('/trac/domains')  )
     )
 };
 

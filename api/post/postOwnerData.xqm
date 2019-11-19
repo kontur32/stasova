@@ -31,9 +31,9 @@ function input:owner (  $file, $callback, $domain, $token )
           else (
             insert node $newData into  $data:domainData ( $domain )/owner
           ),  
-        db:output( web:redirect( $callback , map { "message" : "Файл загружен" } ) ) 
+        update:output( web:redirect( $callback , map { "message" : "Файл загружен" } ) ) 
     )
     else (
-      db:output( web:redirect( $callback, map{"message":"Ошибка авторизации"} ) )
+      update:output( web:redirect( $callback, map{"message":"Ошибка авторизации"} ) )
     )
 };

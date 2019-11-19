@@ -42,20 +42,20 @@ function domain:new (  $domainID, $domainLabel, $domainURI, $ownerName, $ownerPa
         return
           if ( $domains/domain[ @id = $domainID ] )
           then (
-            db:output ( "Ошибка: " || "домен " || $domainID || " уже существует" )
+            update:output ( "Ошибка: " || "домен " || $domainID || " уже существует" )
           )
           else (
              insert node $newDomain into $domains,
-             db:output ( $domainID || " успешно создан" )
+             update:output ( $domainID || " успешно создан" )
           )  
         
     )
     else (
-       db:output ("Не полные аргументы:  domainID, domainLabel, domainURI, ownerName, ownerPassword")
+       update:output ("Не полные аргументы:  domainID, domainLabel, domainURI, ownerName, ownerPassword")
     )
     
   )
   else (
-     db:output ( $scope || $ACCESS_TOKEN )
+     update:output ( $scope || $ACCESS_TOKEN )
   )
 };

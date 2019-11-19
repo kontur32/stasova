@@ -28,10 +28,10 @@ function input:user (  $file, $callback, $domain, $token, $group )
         else (        
           insert node $newData into $conf:userData ( $domain, $userID )
         ),  
-      db:output( web:redirect( $callback , map { "group" : $group,"message" : "Файл загружен" } ) ) 
+      update:output( web:redirect( $callback , map { "group" : $group,"message" : "Файл загружен" } ) ) 
   )
   else (
-    db:output(web:redirect( $callback, map{ "message":"Ошибка авторизации" } ) )
+    update:output(web:redirect( $callback, map{ "message":"Ошибка авторизации" } ) )
   )
 };
 

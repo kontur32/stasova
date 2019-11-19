@@ -18,9 +18,9 @@ function delete:owner ( $callback, $domain, $type, $class, $token )
   if ( auth:get-session-scope ( $domain, $token ) = "owner" )
   then (
    delete node $data:domainData ( $domain )/owner/table[ @type = $type and @aboutType = $class ],
-   db:output (  web:redirect ( $callback ) )
+   update:output (  web:redirect ( $callback ) )
   )
   else (
-    db:output (  web:redirect ( $callback ) ) 
+    update:output (  web:redirect ( $callback ) ) 
   )
 };
