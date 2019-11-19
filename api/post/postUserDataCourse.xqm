@@ -19,14 +19,13 @@ function input:user (  $file, $callback, $domain, $token, $group )
   then (
       let $userID := auth:get-session-user ( $domain, $token )          
       let $newData := input:newData ( $file, $domain, $group )
-      let $oldData := $conf:userData ( $domain, $userID )/table [ @aboutType= "student"  and @id=$group ]
+      let $oldData := $conf:userData ( $domain, $userID )/table [ @aboutType = "student"  and @id = $group ]
       return
         if ( $oldData )
         then (
           replace node $oldData with $newData
         )
-        else (
-          
+        else (        
           insert node $newData into $conf:userData ( $domain, $userID )
         ),  
       db:output( web:redirect( $callback , map { "group" : $group,"message" : "Файл загружен" } ) ) 
@@ -48,9 +47,9 @@ function input:newData ( $file, $domain, $group ) as element( table ) {
         let $model := if ( $model ) then ( $model ) else ( <table/> )
         return
           parse:data ( $rawData, $model, $conf:parserUrl )/row 
-            update replace value of node cell[ @id="course" ] with $group
+            update replace value of node cell[ @id = "course" ] with $group
      
-      let $newData :=
+     let $newData :=
         element { "table" } {
           attribute { "type" } { "Data" },
           attribute { "id" } { $group },

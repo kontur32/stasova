@@ -20,7 +20,7 @@ function view:main()
     <div >
       <img class="img-fluid"  src="http://iro37.ru/res/trac-src/img/logo.jpg"/>
     </div>
-  let $map := map{"sidebar": $sidebar, "content":$content, "nav":$nav, "nav-login" : ""}
+  let $map := map{"sidebar": $sidebar, "content":$content, "nav":$nav, "nav-static" : "", "nav-login" : ""}
     return st:fill-html-template( $template, $map )//html 
 };
 

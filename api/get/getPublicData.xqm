@@ -13,9 +13,15 @@ function public:open-data ( $domain, $type, $q, $f, $method )
 {
     let $query := public:parseQuery ( $domain, $q )        
     let $model := $data:model ( $domain, $type )
+<<<<<<< HEAD:api/get/get-public-data.xqm
     let $openCellID := $model/row[ cell[ @id = ("access", "open") ]/text() = ("public", "true" ) ]/cell[ @id = "id" ]/text()
     let $fields := if ( not ( $f ) ) then ( $openCellID ) else ( tokenize ($f, ",") )
     
+=======
+    let $fields := tokenize ( $f, "," )
+    let $openCellID := $model/row[ cell[ @id = ("access", "open") ]/text() = ( "public", "true" ) ]/cell[ @id = "id" ]/text()
+    let $openCellID := if ( $f ) then ( $openCellID[ . = $fields ] ) else ( $openCellID )
+>>>>>>> dev2:api/get/getPublicData.xqm
     let $data := $data:domainData ( $domain )/child::*[ name() = ( "owner", "user" ) ]/table[ @type != "Model" ]/row [ @type= $type ]
     
     let $result :=
@@ -34,6 +40,7 @@ function public:open-data ( $domain, $type, $q, $f, $method )
               }
       }
       return 
+<<<<<<< HEAD:api/get/get-public-data.xqm
         switch ( $method )
         case "xlsx" 
           return public:trciCompact ( $result  )
@@ -47,6 +54,30 @@ function public:open-data ( $domain, $type, $q, $f, $method )
           return $result 
         default 
           return $result 
+=======
+      switch ( $method ) 
+      case ( "xlsx" ) return public:trciCompact ( $result  )
+      case ( "trci" ) return  $result 
+      case ( "csv" ) return public:csvExport ( $result )
+      default return $result 
+};
+
+declare 
+  %private
+function public:csvExport ( $data as element ( table ) ) {
+  let $result := 
+    <csv>{
+      for $row in $data/row
+      return
+       <record>{
+         for $c in $row/cell
+         return 
+           element { $c/@id } { $c/text() }
+       }</record>  
+    }</csv>
+    
+  return csv:serialize ( $result, map{ "header" : "yes" } )
+>>>>>>> dev2:api/get/getPublicData.xqm
 };
 
 declare 

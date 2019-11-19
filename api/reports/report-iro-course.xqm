@@ -2,14 +2,18 @@ module namespace report = "http://www.iro37.ru/trac/api/report";
 
 import module namespace docx = "docx.iroio.ru" at '../../../iro/module-docx.xqm';
 
+import module namespace Report1 = "http://www.iro37.ru/trac/api/report/reportAge" at "../../../functionTRaC/reportAge.xqm";
+import module namespace Report2 = "http://www.iro37.ru/trac/api/report/contactsStaffers" at "../../../functionTRaC/contactsStaffers.xqm";
+
 declare
   %rest:path("/trac/api/output/Report/{$domain}/{$report}")
   %rest:method('GET')
   %rest:query-param( "type", "{$type}" )
   %rest:query-param( "group", "{$group}" )     
+  %rest:query-param( "method", "{$method}", "html" )
   %rest:query-param( "token", "{$token}" )
   %output:method ( "xml" )
-function report:report ( $report, $domain, $type, $group, $token )
+function report:report ( $report, $domain, $type, $group, $method, $token )
 {
     let $data := 
       try {
@@ -34,8 +38,16 @@ function report:report ( $report, $domain, $type, $group, $token )
         case "7" return report:цсРегистрация ( $data )
         case "8" return report:цсЖурналПосещения ( $data )
         case "9" return report:цсЗачетнаяВедомость ( $data )
+        case "10" return report:Возраст( $data )
+        case "11" return report:КонтактыСотрудников ( $data )
+        case "20" return report:семинарияРейтингСтудентов ( $domain, $data )
+        case "21" return report:семинарияРейтингПоКурсам ( $domain, $data )
+        case "22" return  report:семинарияРейтингСводный ( $domain, $data )
         default return <table/>      
-    return $content
+    return 
+      if ( $method = "html" )
+      then ( $content )
+      else ( )
 };
 
  declare
@@ -46,7 +58,8 @@ function report:report ( $report, $domain, $type, $group, $token )
   %rest:query-param( "token", "{$token}" )
 function report:выгрузка ( $domain, $report, $class, $container, $token )
 {
-  let $content := report:report ( $report, $domain, $class, $container, $token )
+  let $method := "html"
+  let $content := report:report ( $report, $domain, $class, $container, $method, $token )
 
   let $tpl := 
       try {
@@ -66,7 +79,7 @@ function report:выгрузка ( $domain, $report, $class, $container, $token 
   let $rows := for $row in $content /child::*[ position()>1 ]
                 return docx:row($row)
   
-  let $entry := docx:table-insert-rows-last ($doc, $rows)
+  let $entry := docx:table-insert-rows ($doc, $rows)
   let $updated := archive:update ($template, 'word/document.xml', $entry)
   
   return $updated
@@ -368,5 +381,176 @@ declare %private function report:цсЗачетнаяВедомость ( $data 
             <td></td>
           </tr>
         } 
+     </table>
+};
+
+declare function report:Возраст ( $data ) {
+  Report1:Возраст ( $data )
+};
+
+declare function report:КонтактыСотрудников ( $data ) {
+  Report2:контакты ( $data )
+};
+
+declare %private function report:семинарияРейтингСтудентов ( $domain, $data ) {
+  let $data := 
+      try {
+        fetch:xml (
+          web:create-url ( "http://localhost:8984/trac/api/Data/public/" || $domain || "/"|| "student",
+            map { }  )
+        )
+      }
+      catch * { }
+   let $курсы := 
+      try {
+        fetch:xml (
+          web:create-url ( "http://localhost:8984/trac/api/Data/public/" || $domain || "/"|| "course",
+            map { }  )
+        )
+      }
+      catch * { }
+   return  
+     <table class="table table-striped">
+       <tr>
+          <th>место</th>
+          <th>студент</th>
+          <th>средний балл</th>
+          <th>качество знаний, %</th>
+          <th>рейтинг</th>
+        </tr>
+        {
+        for $r in $data/table/row
+        let $курс := $курсы//row[ @id = $r/cell[ @id = "course"] ]/cell[ @id = "label"]/text()
+        let $notes := $r/cell[  matches( @id/data(), "^o[0-9]" ) ][ number(text()) > 0 ]/text()
+        where count( $notes ) > 0 
+        let $среднийБалл :=  sum($notes) div count($notes)
+        let $качество := 
+          if( $среднийБалл >= 4 )
+          then( 100 )
+          else(
+             if( $среднийБалл < 3 )
+             then( 0 )
+             else( ( $среднийБалл - 3 ) * 100 )
+          )
+        let $рейтинг := $среднийБалл * $качество
+        order by $рейтинг descending
+        count $c
+        return      
+          <tr>
+            <td>{ $c }</td>
+            <td>
+              { string-join ( $r/cell[@id=("familyName", "givenName", "secondName")]/text() , " ") || ", " || $курс }
+            </td>
+            <td>{ round( $среднийБалл, 2 ) }</td>
+            <td>{ round( $качество, 2 ) }</td>
+            <td>{ round( $рейтинг, 2 ) }</td>
+          </tr>
+        }
+     </table>
+};
+
+declare %private function report:семинарияРейтингПоКурсам ( $domain, $data ) {
+  let $data := 
+      try {
+        fetch:xml (
+          web:create-url ( "http://localhost:8984/trac/api/Data/public/" || $domain || "/"|| "student",
+            map { }  )
+        )/table/row
+      }
+      catch * { }
+   let $курсы := 
+      try {
+        fetch:xml (
+          web:create-url ( "http://localhost:8984/trac/api/Data/public/" || $domain || "/"|| "course",
+            map { }  )
+        )
+      }
+      catch * { }
+   return  
+     <table class="table table-striped">
+       <tr>
+          <th>место</th>
+          <th>курс</th>
+          <th>средний балл</th>
+          <th>качество знаний, %</th>
+          <th>рейтинг</th>
+        </tr>
+        {
+        for $c in distinct-values( $data/cell[@id="course"]/text() )
+        let $r := $data[ cell[@id="course"] = $c ]
+        let $курс := $курсы//row[ @id = $c ]/cell[ @id = "label"]/text()
+        let $notes := $r/cell[  matches( @id/data(), "^o[0-9]" ) ][ number(text()) > 0 ]/text()
+        where count( $notes ) > 0
+        let $среднийБалл := sum( $notes ) div count( $notes )
+        let $качество := 
+          if( $среднийБалл >= 4 )
+          then( 100 )
+          else(
+             if( $среднийБалл < 3 )
+             then( 0 )
+             else( ( $среднийБалл - 3 ) * 100 )
+          )
+        let $рейтинг := $среднийБалл * $качество
+        order by $рейтинг descending
+        count $c
+        return      
+          <tr>
+            <td>{ $c }</td>
+            <td>
+              { $курс }
+            </td>
+            <td>{ round( $среднийБалл, 2) }</td>
+            <td>{ round( $качество, 2 ) }</td>
+            <td>{ round( $рейтинг, 2 ) }</td>
+          </tr>
+        }
+     </table>
+};
+
+declare %private function report:семинарияРейтингСводный ( $domain, $data ) {
+  let $data := 
+      try {
+        fetch:xml (
+          web:create-url ( "http://localhost:8984/trac/api/Data/public/" || $domain || "/"|| "student",
+            map { }  )
+        )/table/row
+      }
+      catch * { }
+   let $курсы := 
+      try {
+        fetch:xml (
+          web:create-url ( "http://localhost:8984/trac/api/Data/public/" || $domain || "/"|| "course",
+            map { }  )
+        )
+      }
+      catch * { }
+   return  
+     <table class="table table-striped">
+       <tr>
+          <th>средний балл</th>
+          <th>качество знаний, %</th>
+          <th>рейтинг</th>
+        </tr>
+        {
+        let $notes := $data/cell[  matches( @id/data(), "^o[0-9]" ) ][ number(text()) > 0 ]/text()
+        let $среднийБалл := sum( $notes ) div count( $notes )
+        let $качество := 
+          if( $среднийБалл >= 4 )
+          then( 100 )
+          else(
+             if( $среднийБалл < 3 )
+             then( 0 )
+             else( ( $среднийБалл - 3 ) * 100 )
+          )
+        let $рейтинг := $среднийБалл * $качество
+        order by $рейтинг descending
+        count $c
+        return      
+          <tr>
+            <td>{ round( $среднийБалл, 1 ) }</td>
+            <td>{ round( $качество, 1 ) }</td>
+            <td>{ round( $рейтинг, 1 ) }</td>
+          </tr>
+        }
      </table>
 };

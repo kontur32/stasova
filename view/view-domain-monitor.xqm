@@ -24,10 +24,10 @@ function view:main( $domain )
         <tr>
           <th>№ пп</th>
           <th>Пользователь</th>
-          <th>Контейнеров</th>
-          <th>Записей</th>
-          <th>Контейнеров за 7 дней</th>
-          <th>Записей за 7 дней</th>
+          <th>Групп</th>
+          <th>Слушателей</th>
+          <th>Групп за 7 дней</th>
+          <th>Слушателей за 7 дней</th>
         </tr>
         {
          for $i in $userData
@@ -50,4 +50,34 @@ function view:main( $domain )
     </div>
   let $map := map{"sidebar": $sidebar, "content" : $content, "nav" : $nav, "nav-login" : ""}
     return st:fill-html-template( $template, $map )//html 
+};
+
+declare 
+  %rest:path("/trac/{ $domain }/monitor2")
+  %rest:query-param("year", "{$year}")
+  %rest:query-param("row", "{$rowField}")
+  %rest:query-param("col", "{$colField}")
+  %rest:GET
+  %output:method('text')  
+function view:main2 ( $domain, $year, $rowField, $colField )
+{
+  let $courses := 
+    fetch:xml("http://localhost:8984/trac/api/Data/public/"|| $domain ||"/course")/table/row[cell[@id="yearPK"]/text() = $year ]/cell[@id="id"]/text()
+  let $students := 
+    fetch:xml("http://localhost:8984/trac/api/Data/public/"|| $domain ||"/student")/table/row
+  
+  for $i in $students
+  where $i[ cell[@id="course"]/text() = $courses ]
+  group by $row := $i/cell[@id=$rowField]/text()
+  order by $row
+  return 
+      ( "&#10;{" || $row || ": " || count($i),
+       
+         for $b in $i
+         group by $col := $b/cell[@id=$colField]/text()
+         order by $col
+         return 
+           ( "&#10;      {" || $col || ": " || count ($b) || "}" ),
+       "&#10;}"
+    )
 };

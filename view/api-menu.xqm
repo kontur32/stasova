@@ -53,12 +53,12 @@ function int:nav-scope ( $scope, $domain )
       <row>
         <cell id="id">prof</cell>
         <cell id="label">Профпереподготовка</cell>
-        <cell id="href">user/{$domain}/prof</cell>
+        <cell id="href">user/{$domain}/course</cell>
       </row>
       <row>
         <cell id="id">probl</cell>
         <cell id="label">Семинары</cell>
-        <cell id="href">user/{$domain}/probl</cell>
+        <cell id="href">user/{$domain}/course</cell>
       </row>
    </table>
   </menu>
@@ -67,26 +67,40 @@ function int:nav-scope ( $scope, $domain )
 };
 
 declare
-  %rest:path("/trac/api/interface/menu/role/{$role}")
-  %rest:method('GET')
+  %rest:path("/trac/api/interface/menu/static")
   %rest:query-param("domain", "{$domain}")
-function int:nav-role ( $role, $domain )
+  %rest:method('GET')
+function int:nav-static ( $domain )
 {
   let $menu :=
   <menu>
-    <table id="завуч" domain="{$domain}">
-      <row>
-        <cell id="id">domain</cell>
-        <cell id="label">Главная</cell>
-        <cell id="href">user/{$domain}</cell>
-      </row>
-      <row>
-        <cell id="id">staff</cell>
-        <cell id="label">Персонал</cell>
-        <cell id="href">user/{$domain}/staff</cell>
-      </row>
-   </table>
+    <table id="ood" domain="{$domain}">
+         <ul class="navbar-nav">
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
+                ЗаполниТитул
+              </a>
+              <div class="dropdown-menu">
+              <a class="dropdown-item" target="_blanc" href="http://dbx.iro37.ru/zapolnititul/v/iroio?path=ood&amp;form=rp1">Благодарственное письмо</a>
+                <a class="dropdown-item" target="_blanc" href="http://dbx.iro37.ru/zapolnititul/v/iroio?path=ood&amp;form=rp2">Сертификат</a>
+                <a class="dropdown-item" target="_blanc" href="http://dbx.iro37.ru/zapolnititul/v/iroio?path=ood&amp;form=rp3">Деловое письмо</a>
+              </div>
+            </li>
+          </ul>
+    </table>
+    <table id="lipers" domain="{$domain}">
+         <ul class="navbar-nav">
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
+                ЗаполниТитул
+              </a>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" target="_blanc" href="http://dbx.iro37.ru/zapolnititul/v/lipers?path=edu&amp;form=rp">Рабочая программа</a>
+              </div>
+            </li>
+          </ul>
+    </table>
   </menu>
   
- return $menu/child::*[ @id = $role ]
+ return $menu/table[ @id = $domain ]
 };

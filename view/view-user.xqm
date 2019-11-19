@@ -13,7 +13,12 @@ declare
 function view:owner-main( $domain ) {
   if ( auth:get-session-scope ( $domain, Session:get('token') ) = "user"  )
   then (
-    let $nav-items-data := fetch:xml ( web:create-url( $conf:menuUrl( "user" ), map{ "domain":$domain } ) )/table
+    let $nav-items-data := 
+      try {
+        fetch:xml ( web:create-url( $conf:menuUrl( "user" ), map{ "domain":$domain } ) )/table
+      }
+      catch * {<table/>}
+    
     let $nav := inter:build-menu-items ( $nav-items-data )
     let $userID := auth:get-session-user ( $domain, Session:get('token') )
     let $nav-login := inter:build-menu-login ( $conf:user ( $domain, $userID ) )
@@ -21,7 +26,7 @@ function view:owner-main( $domain ) {
     let $content := 
         <p>Добро пожаловать на страницу руководителя КПК <b>"{$conf:domain ( $domain )/@label/data()}"</b></p>
     let $template := serialize( doc("../src/main-tpl.html") )
-    let $map := map{ "nav":$nav, "nav-login" : $nav-login, "sidebar" :  "", "content" : $content }
+    let $map := map{ "nav":$nav, "nav-login" : $nav-login, "nav-static" : "", "sidebar" :  "", "content" : $content }
     return st:fill-html-template( $template, $map )//html 
   )
   else (
@@ -30,26 +35,38 @@ function view:owner-main( $domain ) {
 };
 
 declare
-  %rest:path("/trac/user/{$domain}/course")
+  %rest:path("/trac/user/{$domain}/{$section}")
   %rest:query-param("group", "{$group}")  
   %rest:query-param("item", "{$item}")
   %rest:query-param("pagination", "{$pagination}")
   %rest:query-param("message", "{$message}")
   %output:method ('xhtml')
-function view:user-section (  $domain, $group,  $item, $pagination, $message ) {
+function view:user-section (  $domain, $group, $section, $item, $pagination, $message ) {
 
   if ( auth:get-session-scope ( $domain, Session:get('token') ) =  "user" )
   then (
-    let $section := "course"
     let $userID := auth:get-session-user ( $domain, Session:get('token') )
     let $userLabel := $conf:domain( $domain )/data/owner/table[ @type="Data" and @aboutType= "users" ]/row[ @id= $userID ]/cell[ @id="label" ]/text()
     
-    let $nav-items-data := fetch:xml ( web:create-url( $conf:menuUrl( "user" ), map{ "domain":$domain } ) )/table
+    let $nav-items-data := 
+      try {
+        fetch:xml( web:create-url( $conf:menuUrl( "user" ), map{ "domain":$domain } ) )/table
+      }
+      catch * {
+        
+      }
+    
+    let $nav-static := 
+      try {
+        fetch:xml( web:create-url( $conf:menuUrl( "static" ), map{ "domain":$domain } ) )
+      }
+      catch * { '' }
+    
     let $nav := inter:build-menu-items ( $nav-items-data )
     let $nav-login := inter:build-menu-login ( $conf:user ( $domain, $userID ) )
    
     let $group := if ( $group ) then ( $group ) else (
-      $conf:domain( $domain )/data/owner/table[ @type ="Data" and @aboutType = "course" ]/row[1]/@id/data()
+      $conf:domain( $domain )/data/owner/table[ @type ="Data" and @aboutType = $section ]/row[1]/@id/data()
     )
    
     let $callback := string-join (( "/trac", "user" , $domain, $section), "/")
@@ -73,10 +90,10 @@ function view:user-section (  $domain, $group,  $item, $pagination, $message ) {
         }</ul>
         <hr/>
         <p>шаблон анкеты (Школы, СПО, ДО и т.п.)
-            <a href="http://iro37.ru/res/tpl/xlsx/АНКЕТА-слушателиКПК-10112018.xlsx">(скачать)</a>
+            <a href="http://iro37.ru/res/tpl/xlsx/АНКЕТА-слушателиКПК-18012019.xlsx">(скачать)</a>
         </p>
         <p>шаблон анкеты (ДОУ)
-            <a href="http://iro37.ru/res/tpl/xlsx/АНКЕТА-слушателиКПК-ДОУ-10112018.xlsx">(скачать)</a>
+            <a href="http://iro37.ru/res/tpl/xlsx/АНКЕТА-слушателиКПК-ДОУ-18012019.xlsx">(скачать)</a>
         </p>
       </div>    
 
@@ -120,7 +137,7 @@ function view:user-section (  $domain, $group,  $item, $pagination, $message ) {
       </div>
     
     let $template := serialize( doc("../src/main-tpl.html") )
-    let $map := map{ "nav":$nav, "nav-login" : $nav-login, "sidebar" :  $sidebar, "content" : $content }
+    let $map := map{ "nav":$nav, "nav-login" : $nav-login, "nav-static" : $nav-static, "sidebar" :  $sidebar, "content" : $content }
     return st:fill-html-template( $template, $map )//html 
   )
   else (

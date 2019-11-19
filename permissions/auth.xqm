@@ -9,9 +9,10 @@ import  module namespace conf = 'http://iro37.ru/xq/modules/config' at "../confi
  };
  
  declare
- function auth:build-session-record ( $user as xs:string, $scope, $token, $duration as xs:dayTimeDuration )
+ function auth:build-session-record ( $domain, $user as xs:string, $scope, $token, $duration as xs:dayTimeDuration )
  {   
    element session {
+     attribute { 'domain' } { $domain },
      attribute { 'userid' } { $user },
      attribute { 'scope' } { $scope },
      attribute { 'expires' } { string(current-dateTime() + $duration ) },
@@ -42,23 +43,32 @@ declare
  declare 
    %updating 
  function 
-   auth:set-session( $domain as xs:string, $user as xs:string, $scope, $token, $duration as xs:dayTimeDuration )
+   auth:set-session(
+     $domain as xs:string, 
+     $user as xs:string, 
+     $scope as xs:string, 
+     $token as xs:string, 
+     $duration as xs:dayTimeDuration )
  {
-   let $sessions := $conf:domain ($domain)/sessions
-   let $session := auth:build-session-record ( $user, $scope , $token, $duration )  
+   let $sessions := $conf:domain( $domain )/sessions
+   let $session := auth:build-session-record ( $domain, $user, $scope , $token, $duration )
+   let $oauthSessions := db:open(  $conf:dbName, "sessions" )/sessions
    where 
-     $conf:getUser ( $domain, $user ) or
+     $conf:getUser( $domain, $user ) or
      $conf:domain( $domain )/@owner = $user
    
    return
-     if ($sessions/session[@userid= $user])
-     then ( replace node $sessions//session[@userid= $user][last()] with $session )
-     else ( insert node $session into $sessions)
+     (
+       delete node $sessions/session[ @userid = $user ],
+       insert node $session into $sessions,
+       delete node $oauthSessions/session[ @userid = $user and @domain = $domain ],
+       insert node $session into $oauthSessions
+     )
  };
  
  declare 
    %updating 
- function auth:set-session($domain as xs:string, $user as xs:string, $scope, $token )
+ function auth:set-session( $domain as xs:string, $user as xs:string, $scope, $token )
  {
    auth:set-session($domain, $user, $scope, $token, $conf:session-duration )
  };
